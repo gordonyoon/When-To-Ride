@@ -59,5 +59,6 @@ public class FavoritesActivity extends AppCompatActivity {
 
     @OnClick(R.id.add_fab)
     void addNewFavorite() {
+        EditFavoriteActivity.start(this);
     }
 }
