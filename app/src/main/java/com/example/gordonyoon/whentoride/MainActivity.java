@@ -1,16 +1,16 @@
 package com.example.gordonyoon.whentoride;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.example.gordonyoon.whentoride.models.Products;
 import com.example.gordonyoon.whentoride.uberapi.UberApiService;
 
 import butterknife.BindString;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     @BindString(R.string.uber_server_token) String mServerToken;
+
     public static final String mockLatitude = "37.775818";
     public static final String mockLongitude = "-122.418028";
 
@@ -29,8 +30,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+    }
 
-        testUberProductsCall();
+    @OnClick(R.id.login_button)
+    void startLoginActivity() {
+        startActivity(new Intent(this, LoginActivity.class));
     }
 
     private void testUberProductsCall() {
@@ -52,27 +56,5 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }
