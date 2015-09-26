@@ -73,6 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onNext(User user) {
                                 Log.i(TAG, "onNext ");
+                                FavoritesActivity.start(LoginActivity.this, user);
                             }
                         });
                 return true;

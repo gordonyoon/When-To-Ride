@@ -1,8 +1,11 @@
 package com.example.gordonyoon.whentoride.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
-public class User {
+public class User implements Parcelable {
 
     @SerializedName("access_token")
     private String accessToken;
@@ -14,6 +17,27 @@ public class User {
     private String refreshToken;
     @SerializedName("scope")
     private String scope;
+
+    public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+        public User createFromParcel(Parcel source) {
+            return new User(source);
+        }
+
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
+    public User() {
+    }
+
+    protected User(Parcel in) {
+        this.accessToken = in.readString();
+        this.tokenType = in.readString();
+        this.expiresIn = (Integer)in.readValue(Integer.class.getClassLoader());
+        this.refreshToken = in.readString();
+        this.scope = in.readString();
+    }
 
     public String getAccessToken() {
         return accessToken;
@@ -55,4 +79,17 @@ public class User {
         this.scope = scope;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.accessToken);
+        dest.writeString(this.tokenType);
+        dest.writeValue(this.expiresIn);
+        dest.writeString(this.refreshToken);
+        dest.writeString(this.scope);
+    }
 }
