@@ -12,17 +12,14 @@ import android.webkit.WebViewClient;
 import com.example.gordonyoon.whentoride.models.User;
 import com.example.gordonyoon.whentoride.uberapi.UberAuthTokenClient;
 import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-
-import java.io.IOException;
 
 import butterknife.Bind;
 import butterknife.BindString;
 import butterknife.ButterKnife;
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.Response;
+import rx.Observable;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
@@ -59,29 +56,34 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             if (url.startsWith(mRedirectUri)) {
-                String authorizationCode = HttpUrl.parse(url).queryParameter("code");
-                Call<User> call = UberAuthTokenClient.getUberAuthTokenClient().getAuthToken(
-                        mClientSecret,
-                        mClientId,
-                        "authorization_code",
-                        authorizationCode,
-                        Uri.encode(mRedirectUri));
-                call.enqueue(new Callback<User>() {
-                    @Override
-                    public void onResponse(Response<User> response) {
-                        if (response.isSuccess()) {
-                            Log.i(TAG, "User authenticated!");
-                        }
-                    }
+                getAuthTokenObservable(HttpUrl.parse(url).queryParameter("code"))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Observer<User>() {
+                            @Override
+                            public void onCompleted() {
+                                Log.i(TAG, "onCompleted ");
+                            }
 
-                    @Override
-                    public void onFailure(Throwable t) {
-                        t.printStackTrace();
-                    }
-                });
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.i(TAG, "onError ");
+                            }
+
+                            @Override
+                            public void onNext(User user) {
+                                Log.i(TAG, "onNext ");
+                            }
+                        });
                 return true;
             }
             return false;
+        }
+
+        private Observable<User> getAuthTokenObservable(String authorizationCode) {
+            return UberAuthTokenClient.getUberAuthTokenClient()
+                    .getAuthToken(mClientSecret, mClientId, "authorization_code",
+                            authorizationCode, Uri.encode(mRedirectUri));
         }
 
         @Override
