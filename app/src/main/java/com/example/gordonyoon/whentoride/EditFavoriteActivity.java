@@ -2,37 +2,37 @@ package com.example.gordonyoon.whentoride;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import butterknife.ButterKnife;
+import rx.functions.Action1;
 
 public class EditFavoriteActivity extends FragmentActivity {
 
-    public static final String EXTRA_LOCATION = "location";
+    public static final String EXTRA_SAVED_LOCATION = "location";
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-
     private MapsController mController;
+    private Location mSavedLocation;
+
+    private RxBus mBus;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, EditFavoriteActivity.class);
         context.startActivity(intent);
     }
 
-    public static void start(Context context, Location location) {
+    public static void start(Context context, Location savedLocation) {
         Intent intent = new Intent(context, EditFavoriteActivity.class);
-        intent.putExtra(EXTRA_LOCATION, location);
+        intent.putExtra(EXTRA_SAVED_LOCATION, savedLocation);
         context.startActivity(intent);
     }
 
@@ -42,11 +42,22 @@ public class EditFavoriteActivity extends FragmentActivity {
         setContentView(R.layout.activity_edit_favorite);
         ButterKnife.bind(this);
 
-        Location lastLocation = null;
         if (getIntent().getExtras() != null) {
-            lastLocation = (Location)getIntent().getExtras().get(EXTRA_LOCATION);
+            mSavedLocation = (Location)getIntent().getExtras().get(EXTRA_SAVED_LOCATION);
         }
-        mController = new MapsController(this, lastLocation);
+
+        mBus = new RxBus();
+        mBus.toObserverable().subscribe(new Action1<Object>() {
+            @Override
+            public void call(Object event) {
+                if (event instanceof MapsController.ConnectEvent) {
+                    // only update after client is connected
+                    updateLocation();
+                }
+            }
+        });
+
+        mController = new MapsController(this, mBus, mSavedLocation);
 
         setUpMapIfNeeded();
     }
@@ -68,6 +79,17 @@ public class EditFavoriteActivity extends FragmentActivity {
         super.onStop();
         if (mController.isConnected()) {
             mController.disconnect();
+        }
+    }
+
+    private void updateLocation() {
+        if (mSavedLocation == null) {
+            Location l = mController.getLastLocation();
+            if (l != null) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(l.getLatitude(), l.getLongitude()), 15));
+            } else {
+                Toast.makeText(this, "No location available", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -106,7 +128,6 @@ public class EditFavoriteActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
         mMap.setMyLocationEnabled(true);
     }
 }

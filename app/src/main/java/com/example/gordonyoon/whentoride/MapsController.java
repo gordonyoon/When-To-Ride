@@ -14,27 +14,31 @@ public class MapsController implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
+    private Location mNewLocation;
+    private RxBus mBus;
 
 
-    public MapsController(Context context, @Nullable Location lastLocation) {
+    public MapsController(Context context, RxBus bus, @Nullable Location savedLocation) {
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        if (lastLocation != null) {
-            mLastLocation = lastLocation;
+        mBus = bus;
+
+        if (savedLocation != null) {
+            mNewLocation = savedLocation;
         }
     }
 
     @Override
     public void onConnected(Bundle bundle) {
-        // if mLastLocation is not null, then we are editing a previous favorite
-        if (mLastLocation != null) {
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mNewLocation == null) {
+            // if we are creating a new favorite, start at the current location
+            mNewLocation = getLastLocation();
         }
+        mBus.send(new ConnectEvent());
     }
 
     @Override
@@ -44,14 +48,15 @@ public class MapsController implements GoogleApiClient.ConnectionCallbacks,
         mGoogleApiClient.connect();
     }
 
+    @Nullable
+    public Location getLastLocation() {
+        return LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+    }
+
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
         // onConnectionFailed.
-    }
-
-    public Location getLastLocation() {
-        return mLastLocation;
     }
 
     public boolean isConnected() {
@@ -65,4 +70,6 @@ public class MapsController implements GoogleApiClient.ConnectionCallbacks,
     public void disconnect() {
         mGoogleApiClient.disconnect();
     }
+
+    public class ConnectEvent {}
 }
