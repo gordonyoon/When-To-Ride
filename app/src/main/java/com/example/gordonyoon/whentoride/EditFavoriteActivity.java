@@ -2,20 +2,35 @@ package com.example.gordonyoon.whentoride;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import butterknife.ButterKnife;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 public class EditFavoriteActivity extends FragmentActivity {
+
+    private static final String TAG = "EditFavoriteActivity";
 
     public static final String EXTRA_SAVED_LOCATION = "location";
 
@@ -121,13 +136,69 @@ public class EditFavoriteActivity extends FragmentActivity {
         }
     }
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
     private void setUpMap() {
         mMap.setMyLocationEnabled(true);
+
+        getCameraChangeObservable()
+                .debounce(2000, TimeUnit.MILLISECONDS)
+                .flatMap(new Func1<CameraPosition, Observable<String>>() {
+                    @Override
+                    public Observable<String> call(CameraPosition cameraPosition) {
+                        return getGeocoderObservable(cameraPosition);
+                    }
+                })
+                .subscribe(new Action1<String>() {
+                    @Override
+                    public void call(String s) {
+                        Log.i(TAG, "Address: " + s);
+                    }
+                });
+    }
+
+    private rx.Observable<CameraPosition> getCameraChangeObservable() {
+        return rx.Observable.create(new rx.Observable.OnSubscribe<CameraPosition>() {
+            @Override
+            public void call(final Subscriber<? super CameraPosition> subscriber) {
+                mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+                    @Override
+                    public void onCameraChange(CameraPosition cameraPosition) {
+                        if (!subscriber.isUnsubscribed()) {
+                            subscriber.onNext(cameraPosition);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private rx.Observable<String> getGeocoderObservable(CameraPosition cameraPosition) {
+        try {
+            double latitude = cameraPosition.target.latitude;
+            double longitude = cameraPosition.target.longitude;
+
+            Geocoder geocoder = new Geocoder(EditFavoriteActivity.this);
+            List<Address> matches = geocoder.getFromLocation(latitude, longitude, 1);
+            if (!matches.isEmpty()) {
+                // create a human readable address
+                Address bestMatch = matches.get(0);
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i <= bestMatch.getMaxAddressLineIndex(); i++) {
+                    builder.append(bestMatch.getAddressLine(i));
+
+                    // do not put a comma at the end
+                    if (i < bestMatch.getMaxAddressLineIndex()) {
+                        builder.append(", ");
+                    }
+                }
+
+                // run asynchronously
+                return rx.Observable.just(builder.toString())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return rx.Observable.just(null);
     }
 }
