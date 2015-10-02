@@ -21,11 +21,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.ButterKnife;
-import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 public class EditFavoriteActivity extends FragmentActivity {
@@ -62,13 +59,10 @@ public class EditFavoriteActivity extends FragmentActivity {
         }
 
         mBus = new RxBus();
-        mBus.toObserverable().subscribe(new Action1<Object>() {
-            @Override
-            public void call(Object event) {
-                if (event instanceof MapsController.ConnectEvent) {
-                    // only update after client is connected
-                    updateLocation();
-                }
+        mBus.toObserverable().subscribe(event -> {
+            if (event instanceof MapsController.ConnectEvent) {
+                // only update after client is connected
+                updateLocation();
             }
         });
 
@@ -108,21 +102,6 @@ public class EditFavoriteActivity extends FragmentActivity {
         }
     }
 
-    /**
-     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
-     * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #mMap} is not null.
-     * <p>
-     * If it isn't installed {@link SupportMapFragment} (and
-     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
-     * install/update the Google Play services APK on their device.
-     * <p>
-     * A user can return to this FragmentActivity after following the prompt and correctly
-     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
-     * have been completely destroyed during this process (it is likely that it would only be
-     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
-     * method in {@link #onResume()} to guarantee that it will be called.
-     */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
@@ -137,34 +116,22 @@ public class EditFavoriteActivity extends FragmentActivity {
     }
 
     private void setUpMap() {
+        // add MyLocation layer
         mMap.setMyLocationEnabled(true);
 
         getCameraChangeObservable()
                 .debounce(2000, TimeUnit.MILLISECONDS)
-                .flatMap(new Func1<CameraPosition, Observable<String>>() {
-                    @Override
-                    public Observable<String> call(CameraPosition cameraPosition) {
-                        return getGeocoderObservable(cameraPosition);
-                    }
-                })
-                .subscribe(new Action1<String>() {
-                    @Override
-                    public void call(String s) {
-                        Log.i(TAG, "Address: " + s);
-                    }
-                });
+                .flatMap(this::getGeocoderObservable)
+                .subscribe(s -> { Log.i(TAG, "Address: " + s); });
     }
 
     private rx.Observable<CameraPosition> getCameraChangeObservable() {
         return rx.Observable.create(new rx.Observable.OnSubscribe<CameraPosition>() {
             @Override
             public void call(final Subscriber<? super CameraPosition> subscriber) {
-                mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-                    @Override
-                    public void onCameraChange(CameraPosition cameraPosition) {
-                        if (!subscriber.isUnsubscribed()) {
-                            subscriber.onNext(cameraPosition);
-                        }
+                mMap.setOnCameraChangeListener(cameraPosition -> {
+                    if (!subscriber.isUnsubscribed()) {
+                        subscriber.onNext(cameraPosition);
                     }
                 });
             }
@@ -172,6 +139,7 @@ public class EditFavoriteActivity extends FragmentActivity {
     }
 
     private rx.Observable<String> getGeocoderObservable(CameraPosition cameraPosition) {
+        StringBuilder builder = new StringBuilder();
         try {
             double latitude = cameraPosition.target.latitude;
             double longitude = cameraPosition.target.longitude;
@@ -181,7 +149,6 @@ public class EditFavoriteActivity extends FragmentActivity {
             if (!matches.isEmpty()) {
                 // create a human readable address
                 Address bestMatch = matches.get(0);
-                StringBuilder builder = new StringBuilder();
                 for (int i = 0; i <= bestMatch.getMaxAddressLineIndex(); i++) {
                     builder.append(bestMatch.getAddressLine(i));
 
@@ -190,15 +157,14 @@ public class EditFavoriteActivity extends FragmentActivity {
                         builder.append(", ");
                     }
                 }
-
-                // run asynchronously
-                return rx.Observable.just(builder.toString())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread());
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return rx.Observable.just(null);
+
+        // run asynchronously
+        return rx.Observable.just(builder.toString())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 }
