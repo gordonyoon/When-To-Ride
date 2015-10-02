@@ -19,7 +19,9 @@
         android:layout_width="21dp"
         android:layout_height="37dp"
         android:layout_above="@+id/line"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:paddingLeft="3dp"
+        android:paddingTop="5dp"
         android:src="@drawable/pin"/>
 
     <View
