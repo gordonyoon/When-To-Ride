@@ -9,9 +9,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Func1;
 
 public class Observables {
     public static rx.Observable<CameraPosition> getCameraChangeObservable(GoogleMap map) {
@@ -27,29 +30,43 @@ public class Observables {
         });
     }
 
-    public static rx.Observable<String> getGeocoderObservable(CameraPosition cameraPosition, Context context) {
-        StringBuilder builder = new StringBuilder();
+    public static rx.Observable<String> getReverseGeocoderObservable(CameraPosition cameraPosition, Context context) {
+        List<Address> matches = new ArrayList<>();
         try {
             double latitude = cameraPosition.target.latitude;
             double longitude = cameraPosition.target.longitude;
 
             Geocoder geocoder = new Geocoder(context);
-            List<Address> matches = geocoder.getFromLocation(latitude, longitude, 1);
-            if (!matches.isEmpty()) {
-                // create a human readable address
-                Address bestMatch = matches.get(0);
-                for (int i = 0; i <= bestMatch.getMaxAddressLineIndex(); i++) {
-                    builder.append(bestMatch.getAddressLine(i));
-
-                    // do not put a comma at the end
-                    if (i < bestMatch.getMaxAddressLineIndex()) {
-                        builder.append(", ");
-                    }
-                }
-            }
+            matches = geocoder.getFromLocation(latitude, longitude, 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return rx.Observable.just(builder.toString());
+        return rx.Observable.from(matches)
+                .map(Observables::getAddressText);
+    }
+
+    public static rx.Observable<String> getGeocoderObservable(String query, Context context) {
+        List<Address> matches = new ArrayList<>();
+        try {
+            Geocoder geocoder = new Geocoder(context);
+            matches = geocoder.getFromLocationName(query, 10);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return rx.Observable.from(matches)
+                .map(Observables::getAddressText);
+    }
+
+    private static String getAddressText(Address address) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
+            builder.append(address.getAddressLine(i));
+
+            // do not put a comma at the end
+            if (i < address.getMaxAddressLineIndex()) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
     }
 }

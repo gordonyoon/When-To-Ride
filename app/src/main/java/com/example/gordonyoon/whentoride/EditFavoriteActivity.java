@@ -2,6 +2,7 @@ package com.example.gordonyoon.whentoride;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -74,8 +75,12 @@ public class EditFavoriteActivity extends FragmentActivity {
         mController = new MapsController(this, mBus, mSavedLocation);
 
         mSubscriptions.add(RxTextView.textChanges(mSearch)
-                .subscribe(c -> Log.i(TAG, "searching for... " + c)));
-
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .debounce(200, TimeUnit.MILLISECONDS)
+                .observeOn(Schedulers.io())
+                .flatMap(s -> Observables.getGeocoderObservable(String.valueOf(s), this))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> Log.i(TAG, "address: " + s)));
 
         setUpMapIfNeeded();
     }
@@ -135,9 +140,10 @@ public class EditFavoriteActivity extends FragmentActivity {
         mMap.setMyLocationEnabled(true);
 
         mSubscriptions.add(Observables.getCameraChangeObservable(mMap)
+                .subscribeOn(AndroidSchedulers.mainThread())
                 .debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(Schedulers.io())
-                .flatMap(cameraPosition -> Observables.getGeocoderObservable(cameraPosition, this))
+                .flatMap(cameraPosition -> Observables.getReverseGeocoderObservable(cameraPosition, this))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mAddress::setText));
     }
