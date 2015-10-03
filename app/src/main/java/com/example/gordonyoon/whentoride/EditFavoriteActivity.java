@@ -25,6 +25,7 @@ import butterknife.ButterKnife;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class EditFavoriteActivity extends FragmentActivity {
 
@@ -37,6 +38,7 @@ public class EditFavoriteActivity extends FragmentActivity {
     private Location mSavedLocation;
 
     private RxBus mBus;
+    private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
     @Bind(R.id.address) TextView mAddress;
 
@@ -62,16 +64,22 @@ public class EditFavoriteActivity extends FragmentActivity {
         }
 
         mBus = new RxBus();
-        mBus.toObserverable().subscribe(event -> {
+        mSubscriptions.add(mBus.toObserverable().subscribe(event -> {
             if (event instanceof MapsController.ConnectEvent) {
                 // only update after client is connected
                 updateLocation();
             }
-        });
+        }));
 
         mController = new MapsController(this, mBus, mSavedLocation);
 
         setUpMapIfNeeded();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mSubscriptions.unsubscribe();
     }
 
     @Override
@@ -122,12 +130,12 @@ public class EditFavoriteActivity extends FragmentActivity {
         // add MyLocation layer
         mMap.setMyLocationEnabled(true);
 
-        getCameraChangeObservable()
+        mSubscriptions.add(getCameraChangeObservable()
                 .debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(Schedulers.io())
                 .flatMap(this::getGeocoderObservable)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(mAddress::setText);
+                .subscribe(mAddress::setText));
     }
 
     private rx.Observable<CameraPosition> getCameraChangeObservable() {
