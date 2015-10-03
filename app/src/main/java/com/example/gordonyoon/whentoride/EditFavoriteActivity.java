@@ -124,7 +124,9 @@ public class EditFavoriteActivity extends FragmentActivity {
 
         getCameraChangeObservable()
                 .debounce(600, TimeUnit.MILLISECONDS)
+                .observeOn(Schedulers.io())
                 .flatMap(this::getGeocoderObservable)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mAddress::setText);
     }
 
@@ -164,10 +166,6 @@ public class EditFavoriteActivity extends FragmentActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // run asynchronously
-        return rx.Observable.just(builder.toString())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+        return rx.Observable.just(builder.toString());
     }
 }
