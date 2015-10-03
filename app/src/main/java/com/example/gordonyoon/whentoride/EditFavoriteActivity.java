@@ -7,7 +7,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -36,6 +37,8 @@ public class EditFavoriteActivity extends FragmentActivity {
     private Location mSavedLocation;
 
     private RxBus mBus;
+
+    @Bind(R.id.address) TextView mAddress;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, EditFavoriteActivity.class);
@@ -122,7 +125,7 @@ public class EditFavoriteActivity extends FragmentActivity {
         getCameraChangeObservable()
                 .debounce(2000, TimeUnit.MILLISECONDS)
                 .flatMap(this::getGeocoderObservable)
-                .subscribe(s -> { Log.i(TAG, "Address: " + s); });
+                .subscribe(mAddress::setText);
     }
 
     private rx.Observable<CameraPosition> getCameraChangeObservable() {
