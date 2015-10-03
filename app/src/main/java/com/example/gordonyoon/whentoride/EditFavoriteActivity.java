@@ -123,7 +123,7 @@ public class EditFavoriteActivity extends FragmentActivity {
         mMap.setMyLocationEnabled(true);
 
         getCameraChangeObservable()
-                .debounce(2000, TimeUnit.MILLISECONDS)
+                .debounce(600, TimeUnit.MILLISECONDS)
                 .flatMap(this::getGeocoderObservable)
                 .subscribe(mAddress::setText);
     }
