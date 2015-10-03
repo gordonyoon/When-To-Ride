@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +16,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.jakewharton.rxbinding.widget.RxTextView;
 
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +40,7 @@ public class EditFavoriteActivity extends FragmentActivity {
     private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
     @Bind(R.id.address) TextView mAddress;
+    @Bind(R.id.search) EditText mSearch;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, EditFavoriteActivity.class);
@@ -68,6 +72,10 @@ public class EditFavoriteActivity extends FragmentActivity {
         }));
 
         mController = new MapsController(this, mBus, mSavedLocation);
+
+        mSubscriptions.add(RxTextView.textChanges(mSearch)
+                .subscribe(c -> Log.i(TAG, "searching for... " + c)));
+
 
         setUpMapIfNeeded();
     }
