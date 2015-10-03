@@ -2,27 +2,23 @@ package com.example.gordonyoon.whentoride;
 
 import android.content.Context;
 import android.content.Intent;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.gordonyoon.whentoride.rx.Observables;
+import com.example.gordonyoon.whentoride.rx.RxBus;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -130,50 +126,11 @@ public class EditFavoriteActivity extends FragmentActivity {
         // add MyLocation layer
         mMap.setMyLocationEnabled(true);
 
-        mSubscriptions.add(getCameraChangeObservable()
+        mSubscriptions.add(Observables.getCameraChangeObservable(mMap)
                 .debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(Schedulers.io())
-                .flatMap(this::getGeocoderObservable)
+                .flatMap(cameraPosition -> Observables.getGeocoderObservable(cameraPosition, this))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mAddress::setText));
-    }
-
-    private rx.Observable<CameraPosition> getCameraChangeObservable() {
-        return rx.Observable.create(new rx.Observable.OnSubscribe<CameraPosition>() {
-            @Override
-            public void call(final Subscriber<? super CameraPosition> subscriber) {
-                mMap.setOnCameraChangeListener(cameraPosition -> {
-                    if (!subscriber.isUnsubscribed()) {
-                        subscriber.onNext(cameraPosition);
-                    }
-                });
-            }
-        });
-    }
-
-    private rx.Observable<String> getGeocoderObservable(CameraPosition cameraPosition) {
-        StringBuilder builder = new StringBuilder();
-        try {
-            double latitude = cameraPosition.target.latitude;
-            double longitude = cameraPosition.target.longitude;
-
-            Geocoder geocoder = new Geocoder(EditFavoriteActivity.this);
-            List<Address> matches = geocoder.getFromLocation(latitude, longitude, 1);
-            if (!matches.isEmpty()) {
-                // create a human readable address
-                Address bestMatch = matches.get(0);
-                for (int i = 0; i <= bestMatch.getMaxAddressLineIndex(); i++) {
-                    builder.append(bestMatch.getAddressLine(i));
-
-                    // do not put a comma at the end
-                    if (i < bestMatch.getMaxAddressLineIndex()) {
-                        builder.append(", ");
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return rx.Observable.just(builder.toString());
     }
 }
