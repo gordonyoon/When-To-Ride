@@ -2,7 +2,6 @@ package com.example.gordonyoon.whentoride;
 
 import android.content.Context;
 import android.content.Intent;
-import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -23,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -52,6 +52,11 @@ public class EditFavoriteActivity extends FragmentActivity {
         Intent intent = new Intent(context, EditFavoriteActivity.class);
         intent.putExtra(EXTRA_SAVED_LOCATION, savedLocation);
         context.startActivity(intent);
+    }
+
+    @OnClick(R.id.address)
+    void onAddressClick() {
+        MapsSearchActivity.start(this);
     }
 
     @Override

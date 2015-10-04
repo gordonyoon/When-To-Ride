@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Func1;
 
 public class Observables {
     public static rx.Observable<CameraPosition> getCameraChangeObservable(GoogleMap map) {
@@ -62,7 +60,7 @@ public class Observables {
         for (int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
             builder.append(address.getAddressLine(i));
 
-            // do not put a comma at the end
+            // don't put a comma at the end
             if (i < address.getMaxAddressLineIndex()) {
                 builder.append(", ");
             }
