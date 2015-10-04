@@ -45,18 +45,18 @@ public class Observables {
     }
 
     public static Observable<List<String>> getGeocoderObservable(String query, Context context) {
-        List<String> addresses = new ArrayList<>();
+        List<Address> matches = new ArrayList<>();
         try {
             Geocoder geocoder = new Geocoder(context);
-            List<Address> matches = geocoder.getFromLocationName(query, 10);
-
-            for (Address address : matches) {
-                addresses.add(getAddressText(address));
-            }
+            matches = geocoder.getFromLocationName(query, 20);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Observable.just(addresses);
+        return Observable.from(matches)
+                .filter(address -> address.getMaxAddressLineIndex() == 2)
+                .take(10)
+                .map(Observables::getAddressText)
+                .toList();
     }
 
     private static String getAddressText(Address address) {
