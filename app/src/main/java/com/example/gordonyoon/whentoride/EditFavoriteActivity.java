@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,7 +14,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.jakewharton.rxbinding.widget.RxTextView;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,8 +37,7 @@ public class EditFavoriteActivity extends FragmentActivity {
     private RxBus mBus;
     private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
-    @Bind(R.id.address) TextView mAddress;
-    @Bind(R.id.search) EditText mSearch;
+    @Bind(R.id.current_address) TextView mAddress;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, EditFavoriteActivity.class);
@@ -54,7 +50,7 @@ public class EditFavoriteActivity extends FragmentActivity {
         context.startActivity(intent);
     }
 
-    @OnClick(R.id.address)
+    @OnClick(R.id.current_address)
     void onAddressClick() {
         MapsSearchActivity.start(this);
     }
@@ -78,14 +74,6 @@ public class EditFavoriteActivity extends FragmentActivity {
         }));
 
         mController = new MapsController(this, mBus, mSavedLocation);
-
-        mSubscriptions.add(RxTextView.textChanges(mSearch)
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .debounce(200, TimeUnit.MILLISECONDS)
-                .observeOn(Schedulers.io())
-                .flatMap(s -> Observables.getGeocoderObservable(String.valueOf(s), this))
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> Log.i(TAG, "address: " + s)));
 
         setUpMapIfNeeded();
     }
