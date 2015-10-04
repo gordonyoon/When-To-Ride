@@ -4,21 +4,34 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.example.gordonyoon.whentoride.rx.Observables;
+import com.jakewharton.rxbinding.widget.RxTextView;
+
+import org.solovyev.android.views.llm.LinearLayoutManager;
+
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class MapsSearchActivity extends AppCompatActivity {
+
+    private static final String TAG = "MapsSearchActivity";
+
+    @Bind(R.id.search) TextView mSearch;
     @Bind(R.id.search_results) RecyclerView mRecyclerView;
+
+    CompositeSubscription mSubscriptions = new CompositeSubscription();
 
     public static void start(Context context) {
         Intent intent = new Intent(context, MapsSearchActivity.class);
@@ -35,17 +48,23 @@ public class MapsSearchActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        SearchAdapter adapter = new SearchAdapter(new ArrayList<>());
-        mRecyclerView.setAdapter(adapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        mSubscriptions.add(RxTextView.textChanges(mSearch)
+                .debounce(200, TimeUnit.MILLISECONDS)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(Schedulers.io())
+                .flatMap(s -> Observables.getGeocoderObservable(String.valueOf(s), this))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(addresses -> mRecyclerView.setAdapter(new SearchAdapter(addresses))));
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @Bind(R.id.list_item_address) TextView mAddress;
+        @Bind(R.id.address_text) TextView mAddress;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.bind(itemView);
+            ButterKnife.bind(this, itemView);
         }
 
         @Override
@@ -71,7 +90,9 @@ public class MapsSearchActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.mAddress.setText(mAddresses.get(position));
+            if (holder.mAddress != null) {
+                holder.mAddress.setText(mAddresses.get(position));
+            }
         }
 
         @Override

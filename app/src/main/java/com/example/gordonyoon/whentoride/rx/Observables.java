@@ -12,11 +12,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
 import rx.Subscriber;
 
 public class Observables {
-    public static rx.Observable<CameraPosition> getCameraChangeObservable(GoogleMap map) {
-        return rx.Observable.create(new rx.Observable.OnSubscribe<CameraPosition>() {
+    public static Observable<CameraPosition> getCameraChangeObservable(GoogleMap map) {
+        return Observable.create(new Observable.OnSubscribe<CameraPosition>() {
             @Override
             public void call(final Subscriber<? super CameraPosition> subscriber) {
                 map.setOnCameraChangeListener(cameraPosition -> {
@@ -28,7 +29,7 @@ public class Observables {
         });
     }
 
-    public static rx.Observable<String> getReverseGeocoderObservable(CameraPosition cameraPosition, Context context) {
+    public static Observable<String> getReverseGeocoderObservable(CameraPosition cameraPosition, Context context) {
         List<Address> matches = new ArrayList<>();
         try {
             double latitude = cameraPosition.target.latitude;
@@ -39,20 +40,23 @@ public class Observables {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return rx.Observable.from(matches)
+        return Observable.from(matches)
                 .map(Observables::getAddressText);
     }
 
-    public static rx.Observable<String> getGeocoderObservable(String query, Context context) {
-        List<Address> matches = new ArrayList<>();
+    public static Observable<List<String>> getGeocoderObservable(String query, Context context) {
+        List<String> addresses = new ArrayList<>();
         try {
             Geocoder geocoder = new Geocoder(context);
-            matches = geocoder.getFromLocationName(query, 10);
+            List<Address> matches = geocoder.getFromLocationName(query, 10);
+
+            for (Address address : matches) {
+                addresses.add(getAddressText(address));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return rx.Observable.from(matches)
-                .map(Observables::getAddressText);
+        return Observable.just(addresses);
     }
 
     private static String getAddressText(Address address) {
