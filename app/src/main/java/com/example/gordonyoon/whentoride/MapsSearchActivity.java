@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -38,6 +39,11 @@ public class MapsSearchActivity extends AppCompatActivity {
     public static void start(Context context) {
         Intent intent = new Intent(context, MapsSearchActivity.class);
         context.startActivity(intent);
+    }
+
+    @OnClick(R.id.search_close_button)
+    void clearText() {
+        mSearch.setText("");
     }
 
     @Override
