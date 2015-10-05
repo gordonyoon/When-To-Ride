@@ -2,6 +2,7 @@ package com.example.gordonyoon.whentoride;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.example.gordonyoon.whentoride.rx.Observables;
 import com.jakewharton.rxbinding.widget.RxTextView;
 
+import org.solovyev.android.views.llm.DividerItemDecoration;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
 import java.util.List;
@@ -49,6 +51,7 @@ public class MapsSearchActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, null));
 
         mSubscriptions.add(RxTextView.textChanges(mSearch)
                 .debounce(200, TimeUnit.MILLISECONDS)
@@ -60,7 +63,8 @@ public class MapsSearchActivity extends AppCompatActivity {
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @Bind(R.id.address_text) TextView mAddress;
+        @Bind(R.id.address_text1) TextView mAddress1;
+        @Bind(R.id.address_text2) TextView mAddress2;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -74,9 +78,9 @@ public class MapsSearchActivity extends AppCompatActivity {
     }
 
     class SearchAdapter extends RecyclerView.Adapter<ViewHolder> {
-        private List<String> mAddresses;
+        private List<Address> mAddresses;
 
-        public SearchAdapter(List<String> addresses) {
+        public SearchAdapter(List<Address> addresses) {
             mAddresses = addresses;
         }
 
@@ -90,9 +94,8 @@ public class MapsSearchActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            if (holder.mAddress != null) {
-                holder.mAddress.setText(mAddresses.get(position));
-            }
+            holder.mAddress1.setText(Utils.getAddressText1(mAddresses.get(position)));
+            holder.mAddress2.setText(Utils.getAddressText2(mAddresses.get(position)));
         }
 
         @Override

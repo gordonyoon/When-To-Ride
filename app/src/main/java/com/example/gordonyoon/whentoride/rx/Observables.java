@@ -5,6 +5,7 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 
+import com.example.gordonyoon.whentoride.Utils;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 
@@ -41,10 +42,10 @@ public class Observables {
             e.printStackTrace();
         }
         return Observable.from(matches)
-                .map(Observables::getAddressText);
+                .map(Utils::getAddressText);
     }
 
-    public static Observable<List<String>> getGeocoderObservable(String query, Context context) {
+    public static Observable<List<Address>> getGeocoderObservable(String query, Context context) {
         List<Address> matches = new ArrayList<>();
         try {
             Geocoder geocoder = new Geocoder(context);
@@ -55,20 +56,6 @@ public class Observables {
         return Observable.from(matches)
                 .filter(address -> address.getMaxAddressLineIndex() == 2)
                 .take(10)
-                .map(Observables::getAddressText)
                 .toList();
-    }
-
-    private static String getAddressText(Address address) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
-            builder.append(address.getAddressLine(i));
-
-            // don't put a comma at the end
-            if (i < address.getMaxAddressLineIndex()) {
-                builder.append(", ");
-            }
-        }
-        return builder.toString();
     }
 }
