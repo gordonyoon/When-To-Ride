@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.gordonyoon.whentoride.rx.Observables;
@@ -31,13 +32,16 @@ public class MapsSearchActivity extends AppCompatActivity {
 
     private static final String TAG = "MapsSearchActivity";
 
-    @Bind(R.id.search) TextView mSearch;
+    private static final String EXTRA_CURR_LOC = "currentLocation";
+
+    @Bind(R.id.search) EditText mSearch;
     @Bind(R.id.search_results) RecyclerView mRecyclerView;
 
     CompositeSubscription mSubscriptions = new CompositeSubscription();
 
-    public static void start(Context context) {
+    public static void start(Context context, String currentLocation) {
         Intent intent = new Intent(context, MapsSearchActivity.class);
+        intent.putExtra(EXTRA_CURR_LOC, currentLocation);
         context.startActivity(intent);
     }
 
@@ -51,6 +55,12 @@ public class MapsSearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps_search);
         ButterKnife.bind(this);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            mSearch.setText(extras.getString(EXTRA_CURR_LOC));
+            mSearch.selectAll();
+        }
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

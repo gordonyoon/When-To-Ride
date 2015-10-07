@@ -52,7 +52,7 @@ public class EditFavoriteActivity extends FragmentActivity {
 
     @OnClick(R.id.current_address)
     void onAddressClick() {
-        MapsSearchActivity.start(this);
+        MapsSearchActivity.start(this, mAddress.getText().toString());
     }
 
     @Override
