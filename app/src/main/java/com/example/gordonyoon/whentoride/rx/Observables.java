@@ -30,7 +30,7 @@ public class Observables {
         });
     }
 
-    public static Observable<String> getReverseGeocoderObservable(CameraPosition cameraPosition, Context context) {
+    public static Observable<String> getReverseGeocoderObservable(Context context, CameraPosition cameraPosition) {
         List<Address> matches = new ArrayList<>();
         try {
             double latitude = cameraPosition.target.latitude;
@@ -45,7 +45,7 @@ public class Observables {
                 .map(Utils::getAddressText);
     }
 
-    public static Observable<List<Address>> getGeocoderObservable(String query, Context context) {
+    public static Observable<List<Address>> getGeocoderObservable(Context context, String query) {
         List<Address> matches = new ArrayList<>();
         try {
             Geocoder geocoder = new Geocoder(context);
@@ -57,5 +57,17 @@ public class Observables {
                 .filter(address -> address.getMaxAddressLineIndex() == 2)
                 .take(10)
                 .toList();
+    }
+
+    public static Observable<Address> getAddressObservable(Context context, String query) {
+        Address address = null;
+        try {
+            Geocoder geocoder = new Geocoder(context);
+            List<Address> matches = geocoder.getFromLocationName(query, 1);
+            address = matches.get(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Observable.just(address);
     }
 }

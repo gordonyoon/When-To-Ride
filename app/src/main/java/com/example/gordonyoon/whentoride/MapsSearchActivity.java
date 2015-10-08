@@ -1,6 +1,6 @@
 package com.example.gordonyoon.whentoride;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.location.Address;
 import android.os.Bundle;
@@ -39,10 +39,10 @@ public class MapsSearchActivity extends AppCompatActivity {
 
     CompositeSubscription mSubscriptions = new CompositeSubscription();
 
-    public static void start(Context context, String currentLocation) {
-        Intent intent = new Intent(context, MapsSearchActivity.class);
+    public static void startForResult(Activity activity, String currentLocation) {
+        Intent intent = new Intent(activity, MapsSearchActivity.class);
         intent.putExtra(EXTRA_CURR_LOC, currentLocation);
-        context.startActivity(intent);
+        activity.startActivityForResult(intent, 0);
     }
 
     @OnClick(R.id.search_close_button)
@@ -73,7 +73,7 @@ public class MapsSearchActivity extends AppCompatActivity {
                 .debounce(200, TimeUnit.MILLISECONDS)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(Schedulers.io())
-                .flatMap(s -> Observables.getGeocoderObservable(String.valueOf(s), this))
+                .flatMap(s -> Observables.getGeocoderObservable(this, String.valueOf(s)))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(addresses -> mRecyclerView.setAdapter(new SearchAdapter(addresses))));
     }
@@ -89,7 +89,13 @@ public class MapsSearchActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
+            String address1 = ((TextView)v.findViewById(R.id.address_text1)).getText().toString();
+            String address2 = ((TextView)v.findViewById(R.id.address_text2)).getText().toString();
 
+            Intent data = new Intent();
+            data.putExtra(EditFavoriteActivity.EXTRA_SELECTED_LOCATION, address1 + " " + address2);
+            setResult(RESULT_OK, data);
+            finish();
         }
     }
 

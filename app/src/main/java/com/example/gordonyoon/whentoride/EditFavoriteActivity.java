@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,11 +29,10 @@ public class EditFavoriteActivity extends FragmentActivity {
 
     private static final String TAG = "EditFavoriteActivity";
 
-    public static final String EXTRA_SAVED_LOCATION = "location";
+    public static final String EXTRA_SELECTED_LOCATION = "selectedLocation";
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private MapsController mController;
-    private Location mSavedLocation;
 
     private RxBus mBus;
     private CompositeSubscription mSubscriptions = new CompositeSubscription();
@@ -44,15 +44,27 @@ public class EditFavoriteActivity extends FragmentActivity {
         context.startActivity(intent);
     }
 
-    public static void start(Context context, Location savedLocation) {
-        Intent intent = new Intent(context, EditFavoriteActivity.class);
-        intent.putExtra(EXTRA_SAVED_LOCATION, savedLocation);
-        context.startActivity(intent);
-    }
-
     @OnClick(R.id.current_address)
     void onAddressClick() {
-        MapsSearchActivity.start(this, mAddress.getText().toString());
+        MapsSearchActivity.startForResult(this, mAddress.getText().toString());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            if (extras != null) {
+                String query = extras.getString(EXTRA_SELECTED_LOCATION);
+                Observables.getAddressObservable(this, query)
+                        .subscribe(address -> {
+                            mBus.toObserverable().subscribe(event -> {
+                                if (event instanceof MapsController.ConnectEvent) {
+                                    updateLocation(address.getLatitude(), address.getLongitude());
+                                }
+                            });
+                        });
+            }
+        }
     }
 
     @Override
@@ -61,19 +73,16 @@ public class EditFavoriteActivity extends FragmentActivity {
         setContentView(R.layout.activity_edit_favorite);
         ButterKnife.bind(this);
 
-        if (getIntent().getExtras() != null) {
-            mSavedLocation = (Location)getIntent().getExtras().get(EXTRA_SAVED_LOCATION);
-        }
-
         mBus = new RxBus();
+
         mSubscriptions.add(mBus.toObserverable().subscribe(event -> {
             if (event instanceof MapsController.ConnectEvent) {
                 // only update after client is connected
-                updateLocation();
+                updateLocation(mController.getLastLocation());
             }
         }));
 
-        mController = new MapsController(this, mBus, mSavedLocation);
+        mController = new MapsController(this, mBus);
 
         setUpMapIfNeeded();
     }
@@ -104,14 +113,12 @@ public class EditFavoriteActivity extends FragmentActivity {
         }
     }
 
-    private void updateLocation() {
-        if (mSavedLocation == null) {
-            Location l = mController.getLastLocation();
-            if (l != null) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(l.getLatitude(), l.getLongitude()), 15));
-            } else {
-                Toast.makeText(this, "No location available", Toast.LENGTH_SHORT).show();
-            }
+    @Nullable
+    private void updateLocation(Location location) {
+        if (location != null) {
+            updateLocation(location.getLatitude(), location.getLongitude());
+        } else {
+            Toast.makeText(this, "No location available", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -136,8 +143,12 @@ public class EditFavoriteActivity extends FragmentActivity {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .debounce(600, TimeUnit.MILLISECONDS)
                 .observeOn(Schedulers.io())
-                .flatMap(cameraPosition -> Observables.getReverseGeocoderObservable(cameraPosition, this))
+                .flatMap(cameraPosition -> Observables.getReverseGeocoderObservable(this, cameraPosition))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mAddress::setText));
+    }
+
+    private void updateLocation(double latitude, double longitude) {
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
     }
 }

@@ -15,30 +15,20 @@ public class MapsController implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleApiClient mGoogleApiClient;
-    private Location mNewLocation;
     private RxBus mBus;
 
 
-    public MapsController(Context context, RxBus bus, @Nullable Location savedLocation) {
+    public MapsController(Context context, RxBus bus) {
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-
         mBus = bus;
-
-        if (savedLocation != null) {
-            mNewLocation = savedLocation;
-        }
     }
 
     @Override
     public void onConnected(Bundle bundle) {
-        if (mNewLocation == null) {
-            // if we are creating a new favorite, start at the current location
-            mNewLocation = getLastLocation();
-        }
         mBus.send(new ConnectEvent());
     }
 
