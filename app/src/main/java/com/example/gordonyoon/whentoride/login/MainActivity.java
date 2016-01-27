@@ -1,10 +1,11 @@
-package com.example.gordonyoon.whentoride;
+package com.example.gordonyoon.whentoride.login;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.example.gordonyoon.whentoride.R;
 import com.example.gordonyoon.whentoride.models.Products;
 import com.example.gordonyoon.whentoride.uberapi.UberApiService;
 

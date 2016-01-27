@@ -1,4 +1,4 @@
-package com.example.gordonyoon.whentoride;
+package com.example.gordonyoon.whentoride.map;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentActivity;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.gordonyoon.whentoride.R;
 import com.example.gordonyoon.whentoride.rx.Observables;
 import com.example.gordonyoon.whentoride.rx.RxBus;
 import com.google.android.gms.maps.CameraUpdateFactory;

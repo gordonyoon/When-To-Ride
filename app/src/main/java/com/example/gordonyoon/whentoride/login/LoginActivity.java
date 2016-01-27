@@ -1,4 +1,4 @@
-package com.example.gordonyoon.whentoride;
+package com.example.gordonyoon.whentoride.login;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +9,8 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.example.gordonyoon.whentoride.FavoritesActivity;
+import com.example.gordonyoon.whentoride.R;
 import com.example.gordonyoon.whentoride.models.User;
 import com.example.gordonyoon.whentoride.uberapi.UberAuthTokenClient;
 import com.squareup.okhttp.HttpUrl;

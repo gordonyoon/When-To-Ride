@@ -1,4 +1,4 @@
-package com.example.gordonyoon.whentoride;
+package com.example.gordonyoon.whentoride.map;
 
 
 import android.content.Context;

@@ -1,4 +1,4 @@
-package com.example.gordonyoon.whentoride;
+package com.example.gordonyoon.whentoride.map;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.gordonyoon.whentoride.R;
+import com.example.gordonyoon.whentoride.Utils;
 import com.example.gordonyoon.whentoride.rx.Observables;
 import com.jakewharton.rxbinding.widget.RxTextView;
 
