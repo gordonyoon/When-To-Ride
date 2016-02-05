@@ -9,11 +9,15 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.example.gordonyoon.whentoride.App;
 import com.example.gordonyoon.whentoride.FavoritesActivity;
 import com.example.gordonyoon.whentoride.R;
 import com.example.gordonyoon.whentoride.models.User;
 import com.example.gordonyoon.whentoride.uberapi.UberAuthTokenClient;
 import com.squareup.okhttp.HttpUrl;
+import com.squareup.okhttp.OkHttpClient;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.BindString;
@@ -26,6 +30,8 @@ import rx.schedulers.Schedulers;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
 
+    @Inject OkHttpClient okHttpClient;
+
     @Bind(R.id.web_view) WebView mWebView;
     @BindString(R.string.uber_client_id) String mClientId;
     @BindString(R.string.uber_client_secret) String mClientSecret;
@@ -35,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        App.get(this).appComponent().inject(this);
         ButterKnife.bind(this);
 
         mWebView.setWebViewClient(new UberWebViewClient());
@@ -84,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         private Observable<User> getAuthTokenObservable(String authorizationCode) {
-            return UberAuthTokenClient.getUberAuthTokenClient()
+            return UberAuthTokenClient.getUberAuthTokenClient(okHttpClient)
                     .getAuthToken(mClientSecret, mClientId, "authorization_code",
                             authorizationCode, Uri.encode(mRedirectUri));
         }

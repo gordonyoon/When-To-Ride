@@ -1,8 +1,8 @@
 package com.example.gordonyoon.whentoride.uberapi;
 
 
-import com.example.gordonyoon.whentoride.App;
 import com.example.gordonyoon.whentoride.models.User;
+import com.squareup.okhttp.OkHttpClient;
 
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
@@ -13,12 +13,12 @@ import rx.Observable;
 
 public class UberAuthTokenClient {
 
-    public static UberAuthTokenService getUberAuthTokenClient() {
+    public static UberAuthTokenService getUberAuthTokenClient(OkHttpClient client) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://login.uber.com")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .client(App.okHttpClient)
+                .client(client)
                 .build();
 
         return retrofit.create(UberAuthTokenService.class);

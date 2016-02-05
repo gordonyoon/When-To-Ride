@@ -1,23 +1,38 @@
 package com.example.gordonyoon.whentoride;
 
 import android.app.Application;
+import android.content.Context;
+import android.support.annotation.NonNull;
 
-import com.facebook.stetho.Stetho;
-import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.squareup.leakcanary.LeakCanary;
-import com.squareup.okhttp.OkHttpClient;
 
 
 public class App extends Application {
 
-    public static OkHttpClient okHttpClient = new OkHttpClient();
+    private AppComponent appComponent;
+
+    @NonNull
+    public static App get(@NonNull Context context) {
+        return (App)context.getApplicationContext();
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Stetho.initializeWithDefaults(this);
-        okHttpClient.networkInterceptors().add(new StethoInterceptor());
-
         LeakCanary.install(this);
+        appComponent = createAppComponent();
+    }
+
+    @NonNull
+    private AppComponent createAppComponent() {
+        return DaggerAppComponent
+                .builder()
+                .appModule(new AppModule(this))
+                .build();
+    }
+
+    @NonNull
+    public AppComponent appComponent() {
+        return appComponent;
     }
 }
