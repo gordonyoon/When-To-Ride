@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 
 import com.squareup.leakcanary.LeakCanary;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+
 
 public class App extends Application {
 
@@ -21,6 +24,10 @@ public class App extends Application {
         super.onCreate();
         LeakCanary.install(this);
         appComponent = createAppComponent();
+
+        // setup Realm in the application
+        RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(this).build();
+        Realm.setDefaultConfiguration(realmConfiguration);
     }
 
     @NonNull
