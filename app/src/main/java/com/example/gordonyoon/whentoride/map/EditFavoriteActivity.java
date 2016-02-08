@@ -2,6 +2,7 @@ package com.example.gordonyoon.whentoride.map;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.gordonyoon.whentoride.R;
+import com.example.gordonyoon.whentoride.models.Favorite;
 import com.example.gordonyoon.whentoride.rx.Observables;
 import com.example.gordonyoon.whentoride.rx.RxBus;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -17,11 +19,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.ByteArrayOutputStream;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmResults;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -38,6 +43,8 @@ public class EditFavoriteActivity extends FragmentActivity {
     private RxBus mBus;
     private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
+    private Realm mRealm;
+
     @Bind(R.id.current_address) TextView mAddress;
 
     public static void start(Context context) {
@@ -48,6 +55,35 @@ public class EditFavoriteActivity extends FragmentActivity {
     @OnClick(R.id.current_address)
     void onAddressClick() {
         MapsSearchActivity.startForResult(this, mAddress.getText().toString());
+    }
+
+    @OnClick(R.id.save)
+    void onSaveClick() {
+        String address = mAddress.getText().toString();
+        RealmResults<Favorite> results = mRealm
+                .where(Favorite.class)
+                .equalTo("address", address)
+                .findAll();
+        if (results.size() == 0) {
+            saveFavorite(address);
+        }
+        finish();
+    }
+
+    private void saveFavorite(String address) {
+        GoogleMap.SnapshotReadyCallback callback = bitmap -> {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            byte[] byteArray = stream.toByteArray();
+
+            // save the favorite into Realm
+            mRealm.beginTransaction();
+            Favorite favorite = mRealm.createObject(Favorite.class);
+            favorite.setAddress(address);
+            favorite.setMap(byteArray);
+            mRealm.commitTransaction();
+        };
+        mMap.snapshot(callback);
     }
 
     @Override
@@ -75,6 +111,9 @@ public class EditFavoriteActivity extends FragmentActivity {
         ButterKnife.bind(this);
 
         mBus = new RxBus();
+        mRealm = Realm.getDefaultInstance();
+        mController = new MapsController(this, mBus);
+        setUpMapIfNeeded();
 
         mSubscriptions.add(mBus.toObserverable().subscribe(event -> {
             if (event instanceof MapsController.ConnectEvent) {
@@ -82,15 +121,12 @@ public class EditFavoriteActivity extends FragmentActivity {
                 updateLocation(mController.getLastLocation());
             }
         }));
-
-        mController = new MapsController(this, mBus);
-
-        setUpMapIfNeeded();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mRealm.close();
         mSubscriptions.unsubscribe();
     }
 
@@ -114,15 +150,6 @@ public class EditFavoriteActivity extends FragmentActivity {
         }
     }
 
-    @Nullable
-    private void updateLocation(Location location) {
-        if (location != null) {
-            updateLocation(location.getLatitude(), location.getLongitude());
-        } else {
-            Toast.makeText(this, "No location available", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
@@ -133,6 +160,15 @@ public class EditFavoriteActivity extends FragmentActivity {
             if (mMap != null) {
                 setUpMap();
             }
+        }
+    }
+
+    @Nullable
+    private void updateLocation(Location location) {
+        if (location != null) {
+            updateLocation(location.getLatitude(), location.getLongitude());
+        } else {
+            Toast.makeText(this, "No location available", Toast.LENGTH_SHORT).show();
         }
     }
 
