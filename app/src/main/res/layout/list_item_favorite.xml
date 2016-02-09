@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:baselineAligned="false"
-              android:orientation="horizontal">
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:baselineAligned="false"
+    app:cardCornerRadius="4dp"
+    android:orientation="horizontal">
 
-    <FrameLayout
-        android:layout_width="0dp"
+    <ImageView
+        android:id="@+id/favorite_map"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="2">
+        android:layout_gravity="center_vertical"/>
 
-        <ImageView
-            android:id="@+id/favorite_map"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"/>
-    </FrameLayout>
-
-
-    <LinearLayout
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/favorite_address"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1">
-
-
-
-    </LinearLayout>
-</LinearLayout>
+        android:background="@drawable/map_overlay"/>
+</android.support.v7.widget.CardView>
