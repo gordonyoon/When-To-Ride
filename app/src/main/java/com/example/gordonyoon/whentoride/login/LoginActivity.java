@@ -71,17 +71,17 @@ public class LoginActivity extends AppCompatActivity {
                         .subscribe(new Observer<User>() {
                             @Override
                             public void onCompleted() {
-                                Log.i(TAG, "onCompleted ");
+                                Log.d(TAG, "onCompleted ");
                             }
 
                             @Override
                             public void onError(Throwable e) {
-                                Log.i(TAG, "onError ");
+                                Log.d(TAG, "onError ");
                             }
 
                             @Override
                             public void onNext(User user) {
-                                Log.i(TAG, "onNext ");
+                                Log.d(TAG, "onNext ");
                                 FavoritesActivity.start(LoginActivity.this, user);
                             }
                         });
