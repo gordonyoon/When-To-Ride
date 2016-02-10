@@ -3,12 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="120dp"
+    android:layout_height="@dimen/favorite_height"
     android:baselineAligned="false"
     android:orientation="horizontal"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
-    app:cardCornerRadius="4dp">
+    android:layout_marginTop="@dimen/favorite_margin"
+    android:layout_marginBottom="@dimen/favorite_margin"
+    app:cardCornerRadius="@dimen/favorite_corner_radius">
 
     <ImageView
         android:id="@+id/favorite_map"
