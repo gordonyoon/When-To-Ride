@@ -3,10 +3,8 @@ package com.example.gordonyoon.whentoride;
 
 import android.support.annotation.NonNull;
 
-import com.facebook.stetho.Stetho;
 import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.squareup.okhttp.OkHttpClient;
-import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import javax.inject.Singleton;
 
@@ -15,12 +13,6 @@ import dagger.Provides;
 
 @Module
 public class AppModule {
-
-    @NonNull private final App app;
-
-    AppModule(@NonNull App app) {
-        this.app = app;
-    }
 
     @Provides
     @NonNull
