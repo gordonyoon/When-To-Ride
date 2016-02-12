@@ -2,11 +2,15 @@ package com.example.gordonyoon.whentoride;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +25,7 @@ import com.example.gordonyoon.whentoride.models.User;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
 import butterknife.Bind;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
@@ -28,12 +33,15 @@ import io.realm.RealmResults;
 
 public class FavoritesActivity extends AppCompatActivity {
 
+    private static final String TAG = "FavoritesActivity";
+
     public static final String EXTRA_USER = "user";
 
     private User mUser;
     Realm mRealm;
 
     @Bind(R.id.favorites) RecyclerView mRecyclerView;
+    @BindString(R.string.uber_client_id) String mClientId;
 
     public static void start(Context context, User user) {
         Intent intent = new Intent(context, FavoritesActivity.class);
@@ -53,17 +61,18 @@ public class FavoritesActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mRealm = Realm.getDefaultInstance();
+        mRealm.addChangeListener(() -> mRecyclerView.getAdapter().notifyDataSetChanged());
+
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        populateFavorites();
 
         // for logging in with Uber
         if (getIntent().getExtras() != null) {
             mUser = getIntent().getExtras().getParcelable(EXTRA_USER);
         }
-
-        populateAdapterWithFavorites();
     }
 
-    private void populateAdapterWithFavorites() {
+    private void populateFavorites() {
         RealmResults<Favorite> favorites = mRealm
                 .where(Favorite.class)
                 .findAll();
@@ -109,6 +118,50 @@ public class FavoritesActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
+            Context context = v.getContext().getApplicationContext();
+            callUber(context, mAddress.getText().toString());
+        }
+
+        private void callUber(Context context, String address) {
+            // open the Uber application
+            String uri;
+            try {
+                PackageManager pm = context.getPackageManager();
+                pm.getPackageInfo("com.ubercab", PackageManager.GET_ACTIVITIES);
+
+                Favorite favorite = mRealm
+                        .where(Favorite.class)
+                        .equalTo("address", address)
+                        .findFirst();
+                String latitude = String.valueOf(favorite.getLatitude());
+                String longitude = String.valueOf(favorite.getLongitude());
+
+                // call an Uber and open the application
+                uri = new Uri.Builder()
+                        .scheme("uber")
+                        .authority("")
+                        .appendQueryParameter("client_id", mClientId)
+                        .appendQueryParameter("action", "setPickup")
+                        .appendQueryParameter("pickup", "my_location")
+                        .appendQueryParameter("dropoff[latitude]", latitude)
+                        .appendQueryParameter("dropoff[longitude]", longitude)
+                        .appendQueryParameter("dropoff[formatted_address]", address)
+                        .appendQueryParameter("product_id", "a1111c8c-c720-46c3-8534-2fcdd730040d")
+                        .build()
+                        .toString();
+            } catch (PackageManager.NameNotFoundException e) {
+                // No Uber app! Open mobile website.
+                uri = new Uri.Builder()
+                        .scheme("https")
+                        .authority("m.uber.com")
+                        .path("sign-up")
+                        .appendQueryParameter("client_id", mClientId)
+                        .build()
+                        .toString();
+            }
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(uri));
+            startActivity(intent);
         }
     }
 
