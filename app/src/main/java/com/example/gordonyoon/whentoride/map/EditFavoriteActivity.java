@@ -71,6 +71,8 @@ public class EditFavoriteActivity extends FragmentActivity {
     @OnClick(R.id.save)
     void onSaveClick() {
         String address = mAddress.getText().toString();
+        if (address.isEmpty()) return;
+
         RealmResults<Favorite> results = mRealm
                 .where(Favorite.class)
                 .equalTo("address", address)
