@@ -4,6 +4,9 @@ import android.app.Application;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.example.gordonyoon.whentoride.map.DaggerMapComponent;
+import com.example.gordonyoon.whentoride.map.MapComponent;
+import com.example.gordonyoon.whentoride.map.MapModule;
 import com.facebook.stetho.Stetho;
 import com.squareup.leakcanary.LeakCanary;
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
@@ -15,6 +18,7 @@ import io.realm.RealmConfiguration;
 public class App extends Application {
 
     private AppComponent appComponent;
+    private MapComponent mapComponent;
 
     @NonNull
     public static App get(@NonNull Context context) {
@@ -26,6 +30,7 @@ public class App extends Application {
         super.onCreate();
         LeakCanary.install(this);
         appComponent = createAppComponent();
+        mapComponent = createMapComponent();
 
         // setup Realm in the application
         RealmConfiguration realmConfiguration = new RealmConfiguration.Builder(this).build();
@@ -43,7 +48,15 @@ public class App extends Application {
     private AppComponent createAppComponent() {
         return DaggerAppComponent
                 .builder()
-                .appModule(new AppModule(this))
+                .appModule(new AppModule())
+                .build();
+    }
+
+    @NonNull
+    private MapComponent createMapComponent() {
+        return DaggerMapComponent
+                .builder()
+                .mapModule(new MapModule())
                 .build();
     }
 
@@ -51,4 +64,7 @@ public class App extends Application {
     public AppComponent appComponent() {
         return appComponent;
     }
+
+    @NonNull
+    public MapComponent mapComponent() { return mapComponent; }
 }

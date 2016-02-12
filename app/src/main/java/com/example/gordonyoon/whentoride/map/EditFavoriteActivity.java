@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.gordonyoon.whentoride.App;
 import com.example.gordonyoon.whentoride.R;
 import com.example.gordonyoon.whentoride.models.Favorite;
 import com.example.gordonyoon.whentoride.rx.Observables;
@@ -24,6 +25,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.io.ByteArrayOutputStream;
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -43,7 +46,8 @@ public class EditFavoriteActivity extends FragmentActivity {
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private MapsController mController;
 
-    private RxBus mBus;
+    @Inject
+    RxBus mBus;
     private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
     private Realm mRealm;
@@ -119,11 +123,12 @@ public class EditFavoriteActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_favorite);
+        App.get(this).mapComponent().inject(this);
         ButterKnife.bind(this);
 
-        mBus = new RxBus();
+//        mBus = new RxBus();
         mRealm = Realm.getDefaultInstance();
-        mController = new MapsController(this, mBus);
+        mController = new MapsController(this);
         setUpMapIfNeeded();
 
         mSubscriptions.add(mBus.toObserverable().subscribe(event -> {

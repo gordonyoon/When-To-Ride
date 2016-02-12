@@ -6,25 +6,29 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import com.example.gordonyoon.whentoride.App;
 import com.example.gordonyoon.whentoride.rx.RxBus;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
+import javax.inject.Inject;
+
 public class MapsController implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleApiClient mGoogleApiClient;
-    private RxBus mBus;
+    @Inject
+    RxBus mBus;
 
 
-    public MapsController(Context context, RxBus bus) {
+    public MapsController(Context context) {
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-        mBus = bus;
+        App.get(context).mapComponent().inject(this);
     }
 
     @Override
