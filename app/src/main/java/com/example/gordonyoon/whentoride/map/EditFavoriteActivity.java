@@ -1,11 +1,14 @@
 package com.example.gordonyoon.whentoride.map;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +48,10 @@ public class EditFavoriteActivity extends FragmentActivity {
 
     private Realm mRealm;
 
+    // used to save a Favorite
+    private double mCurrentLatitude;
+    private double mCurrentLongitude;
+
     @Bind(R.id.current_address) TextView mAddress;
 
     public static void start(Context context) {
@@ -72,6 +79,7 @@ public class EditFavoriteActivity extends FragmentActivity {
 
     private void saveFavorite(String address) {
         GoogleMap.SnapshotReadyCallback callback = bitmap -> {
+            // save current map as image
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             byte[] byteArray = stream.toByteArray();
@@ -81,6 +89,9 @@ public class EditFavoriteActivity extends FragmentActivity {
             Favorite favorite = mRealm.createObject(Favorite.class);
             favorite.setAddress(address);
             favorite.setMap(byteArray);
+            favorite.setLatitude(mCurrentLatitude);
+            favorite.setLongitude(mCurrentLongitude);
+
             mRealm.commitTransaction();
         };
         mMap.snapshot(callback);
@@ -174,6 +185,16 @@ public class EditFavoriteActivity extends FragmentActivity {
 
     private void setUpMap() {
         // add MyLocation layer
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         mMap.setMyLocationEnabled(true);
 
         mSubscriptions.add(Observables.getCameraChangeObservable(mMap)
@@ -187,5 +208,7 @@ public class EditFavoriteActivity extends FragmentActivity {
 
     private void updateLocation(double latitude, double longitude) {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
+        mCurrentLatitude = latitude;
+        mCurrentLongitude = longitude;
     }
 }
