@@ -6,5 +6,5 @@
     <dimen name="favorite_margin">4dp</dimen>
     <dimen name="favorite_corner_radius">4dp</dimen>
     <dimen name="favorite_height">120dp</dimen>
-    <dimen name="favorite_address_margins">4dp</dimen>
+    <dimen name="favorite_text_margins">4dp</dimen>
 </resources>
