@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.gordonyoon.whentoride.R;
-import com.example.gordonyoon.whentoride.Utils;
 import com.example.gordonyoon.whentoride.rx.Observables;
 import com.jakewharton.rxbinding.widget.RxTextView;
 
@@ -118,8 +117,8 @@ public class MapsSearchActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.mAddress1.setText(Utils.getAddressText1(mAddresses.get(position)));
-            holder.mAddress2.setText(Utils.getAddressText2(mAddresses.get(position)));
+            holder.mAddress1.setText(MapUtils.getAddressText1(mAddresses.get(position)));
+            holder.mAddress2.setText(MapUtils.getAddressText2(mAddresses.get(position)));
         }
 
         @Override

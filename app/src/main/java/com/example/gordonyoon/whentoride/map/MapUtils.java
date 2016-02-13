@@ -1,9 +1,9 @@
-package com.example.gordonyoon.whentoride;
+package com.example.gordonyoon.whentoride.map;
 
 
 import android.location.Address;
 
-public class Utils {
+public class MapUtils {
 
     public static String getAddressText(Address address) {
         return getAddressText1(address) + ", " + getAddressText2(address);

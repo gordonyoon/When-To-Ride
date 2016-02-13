@@ -5,7 +5,7 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 
-import com.example.gordonyoon.whentoride.Utils;
+import com.example.gordonyoon.whentoride.map.MapUtils;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 
@@ -42,7 +42,7 @@ public class Observables {
             e.printStackTrace();
         }
         return Observable.from(matches)
-                .map(Utils::getAddressText);
+                .map(MapUtils::getAddressText);
     }
 
     public static Observable<List<Address>> getGeocoderObservable(Context context, String query) {
