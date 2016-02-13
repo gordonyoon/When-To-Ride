@@ -43,6 +43,7 @@ public class FavoritesActivity extends AppCompatActivity {
     @Bind(R.id.favorites) RecyclerView mRecyclerView;
     @BindString(R.string.uber_client_id) String mClientId;
 
+
     public static void start(Context context, User user) {
         Intent intent = new Intent(context, FavoritesActivity.class);
         intent.putExtra(EXTRA_USER, user);
@@ -120,6 +121,16 @@ public class FavoritesActivity extends AppCompatActivity {
         public void onClick(View v) {
             Context context = v.getContext().getApplicationContext();
             callUber(context, mAddress.getText().toString());
+        }
+
+        @OnClick(R.id.delete_favorite)
+        void deleteFavorite() {
+            mRealm.beginTransaction();
+            RealmResults<Favorite> result = mRealm.where(Favorite.class)
+                    .equalTo("address", mAddress.getText().toString())
+                    .findAll();
+            result.remove(0);
+            mRealm.commitTransaction();
         }
 
         private void callUber(Context context, String address) {
