@@ -2,47 +2,54 @@
 <android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/favorite_height"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/favorite_margin"
-    android:layout_marginTop="@dimen/favorite_margin"
     android:baselineAligned="false"
     android:orientation="horizontal"
     app:cardCornerRadius="@dimen/favorite_corner_radius">
 
-    <ImageView
-        android:id="@+id/favorite_map"
+    <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
-        android:scaleType="centerCrop"/>
+        android:layout_height="@dimen/favorite_height">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/map_overlay"/>
+        <ImageView
+            android:id="@+id/favorite_map"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:scaleType="centerCrop"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="@dimen/favorite_text_margins"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/favorite_address"
+        <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:lines="1"
-            android:textColor="@android:color/white"/>
+            android:layout_alignEnd="@id/favorite_map"
+            android:layout_alignStart="@id/favorite_map"
+            android:background="@drawable/map_overlay"/>
 
-        <ImageButton
-            android:id="@+id/delete_favorite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:src="@drawable/delete"/>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_alignEnd="@id/favorite_map"
+            android:layout_alignStart="@id/favorite_map"
+            android:layout_margin="@dimen/favorite_text_margins"
+            android:orientation="horizontal">
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/favorite_address"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:lines="1"
+                android:textColor="@android:color/white"/>
+
+            <ImageButton
+                android:id="@+id/delete_favorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/delete"/>
+        </LinearLayout>
+    </RelativeLayout>
 </android.support.v7.widget.CardView>
