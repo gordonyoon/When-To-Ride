@@ -33,7 +33,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
 import io.realm.RealmResults;
-import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -70,7 +69,7 @@ public class EditFavoriteActivity extends FragmentActivity {
 
     @OnClick(R.id.current_address)
     void onAddressClick() {
-        MapsSearchActivity.startForResult(this, mAddress.getText().toString());
+        MapSearchActivity.startForResult(this, mAddress.getText().toString());
     }
 
     @OnClick(R.id.save)

@@ -29,9 +29,9 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
-public class MapsSearchActivity extends AppCompatActivity {
+public class MapSearchActivity extends AppCompatActivity {
 
-    private static final String TAG = "MapsSearchActivity";
+    private static final String TAG = "MapSearchActivity";
 
     private static final String EXTRA_CURR_LOC = "currentLocation";
 
@@ -41,7 +41,7 @@ public class MapsSearchActivity extends AppCompatActivity {
     CompositeSubscription mSubscriptions = new CompositeSubscription();
 
     public static void startForResult(Activity activity, String currentLocation) {
-        Intent intent = new Intent(activity, MapsSearchActivity.class);
+        Intent intent = new Intent(activity, MapSearchActivity.class);
         intent.putExtra(EXTRA_CURR_LOC, currentLocation);
         activity.startActivityForResult(intent, 0);
     }
