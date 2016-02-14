@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.gordonyoon.whentoride.App;
 import com.example.gordonyoon.whentoride.R;
@@ -166,6 +167,8 @@ public class EditFavoriteActivity extends FragmentActivity {
                     Location location = mController.getLastLocation();
                     if (location != null) {
                         updateLocation(location.getLatitude(), location.getLongitude());
+                    } else {
+                        Toast.makeText(this, R.string.gps_signal_lost, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
