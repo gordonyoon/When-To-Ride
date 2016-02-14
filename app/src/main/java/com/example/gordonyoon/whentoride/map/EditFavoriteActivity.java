@@ -7,12 +7,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.gordonyoon.whentoride.App;
 import com.example.gordonyoon.whentoride.R;
@@ -22,6 +19,7 @@ import com.example.gordonyoon.whentoride.rx.RxBus;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.ByteArrayOutputStream;
@@ -43,6 +41,10 @@ public class EditFavoriteActivity extends FragmentActivity {
     private static final String TAG = "EditFavoriteActivity";
 
     public static final String EXTRA_SELECTED_LOCATION = "selectedLocation";
+
+    private static final String STATE_ADDRESS = "state_address";
+    private static final String STATE_LATITUDE = "state_latitude";
+    private static final String STATE_LONGITUDE = "state_longitude";
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private MapsController mController;
@@ -159,8 +161,13 @@ public class EditFavoriteActivity extends FragmentActivity {
 
         mSubscriptions.add(mBus.toObserverable().subscribe(event -> {
             if (event instanceof MapsController.ConnectEvent) {
-                // only update after client is connected
-                updateLocation(mController.getLastLocation());
+                // only update after client is connected and if we aren't restoring state
+                if (mAddress.getText() == "") {
+                    Location location = mController.getLastLocation();
+                    if (location != null) {
+                        updateLocation(location.getLatitude(), location.getLongitude());
+                    }
+                }
             }
         }));
     }
@@ -176,6 +183,18 @@ public class EditFavoriteActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putCharSequence(STATE_ADDRESS, mAddress.getText());
+
+        // save map position
+        final CameraPosition cameraPosition = mMap.getCameraPosition();
+        outState.putDouble(STATE_LATITUDE, cameraPosition.target.latitude);
+        outState.putDouble(STATE_LONGITUDE, cameraPosition.target.longitude);
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -202,15 +221,6 @@ public class EditFavoriteActivity extends FragmentActivity {
             if (mMap != null) {
                 setUpMap();
             }
-        }
-    }
-
-    @Nullable
-    private void updateLocation(Location location) {
-        if (location != null) {
-            updateLocation(location.getLatitude(), location.getLongitude());
-        } else {
-            Toast.makeText(this, "No location available", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -241,5 +251,17 @@ public class EditFavoriteActivity extends FragmentActivity {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
         mCurrentLatitude = latitude;
         mCurrentLongitude = longitude;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        mAddress.setText(savedInstanceState.getCharSequence(STATE_ADDRESS));
+
+        // restore map position
+        double latitude = savedInstanceState.getDouble(STATE_LATITUDE);
+        double longitude = savedInstanceState.getDouble(STATE_LONGITUDE);
+        updateLocation(latitude, longitude);
+
+        super.onRestoreInstanceState(savedInstanceState);
     }
 }
