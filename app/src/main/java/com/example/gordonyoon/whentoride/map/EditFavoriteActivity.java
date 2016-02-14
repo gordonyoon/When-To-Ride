@@ -33,6 +33,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -75,7 +76,10 @@ public class EditFavoriteActivity extends FragmentActivity {
     @OnClick(R.id.save)
     void onSaveClick() {
         String address = mAddress.getText().toString();
-        if (address.isEmpty()) return;
+        if (address.isEmpty()) {
+            Toast.makeText(this, R.string.choose_valid_address, Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         RealmResults<Favorite> results = mRealm
                 .where(Favorite.class)
@@ -225,6 +229,8 @@ public class EditFavoriteActivity extends FragmentActivity {
                 setUpMap();
             }
         }
+        if (!MapUtils.hasInternetConnection(this))
+            Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_SHORT).show();
     }
 
     private void setUpMap() {

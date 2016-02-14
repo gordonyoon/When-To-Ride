@@ -8,4 +8,6 @@
     <string name="title_activity_edit_favorite">EditFavoriteActivity</string>
     <string name="title_activity_maps_search">MapsSearchActivity</string>
     <string name="gps_signal_lost">GPS signal lost.</string>
+    <string name="choose_valid_address">Choose a valid address.</string>
+    <string name="no_internet_connection">No internet connection.</string>
 </resources>

@@ -4,7 +4,9 @@ package com.example.gordonyoon.whentoride.rx;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.widget.Toast;
 
+import com.example.gordonyoon.whentoride.R;
 import com.example.gordonyoon.whentoride.map.MapUtils;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -31,6 +33,8 @@ public class Observables {
     }
 
     public static Observable<String> getReverseGeocoderObservable(Context context, CameraPosition cameraPosition) {
+        if (!MapUtils.hasInternetConnection(context)) return Observable.just("");
+
         List<Address> matches = new ArrayList<>();
         try {
             double latitude = cameraPosition.target.latitude;
