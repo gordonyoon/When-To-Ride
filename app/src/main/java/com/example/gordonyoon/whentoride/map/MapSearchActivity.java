@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -77,6 +78,17 @@ public class MapSearchActivity extends AppCompatActivity {
                 .flatMap(s -> Observables.getGeocoderObservable(this, String.valueOf(s)))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(addresses -> mRecyclerView.setAdapter(new SearchAdapter(addresses))));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // returning to EditFavoriteActivity with Back will preserve map camera position
+            case android.R.id.home:
+                super.onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
