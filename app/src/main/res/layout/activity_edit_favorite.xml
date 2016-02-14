@@ -20,6 +20,7 @@
             android:layout_height="match_parent"
             />
 
+        <!-- paddingLeft centers the pin (it is naturally off center) -->
         <ImageView
             android:id="@+id/pin"
             android:layout_width="21dp"
@@ -28,7 +29,8 @@
             android:layout_centerHorizontal="true"
             android:paddingLeft="3dp"
             android:paddingTop="5dp"
-            android:src="@drawable/pin"/>
+            android:src="@drawable/pin"
+            android:contentDescription="@string/desc_uber_pin"/>
 
         <View
             android:id="@+id/line"
@@ -62,7 +64,8 @@
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:padding="12dp"
-            android:src="@drawable/content_save"/>
+            android:src="@drawable/content_save"
+            android:contentDescription="@string/desc_save"/>
 
     </LinearLayout>
 </LinearLayout>

@@ -10,4 +10,10 @@
     <string name="gps_signal_lost">GPS signal lost.</string>
     <string name="choose_valid_address">Choose a valid address.</string>
     <string name="no_internet_connection">No internet connection.</string>
+    <string name="desc_uber_pin">A pin that indicates the exact position on the map.</string>
+    <string name="desc_save">Save button</string>
+    <string name="desc_clear_search">Clear the search text</string>
+    <string name="desc_marker">Indicates the item is a location</string>
+    <string name="desc_map_screenshot">A screenshot of the location</string>
+    <string name="desc_delete_favorite">Delete the favorite</string>
 </resources>

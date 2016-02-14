@@ -39,7 +39,8 @@
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:padding="16dp"
-                    android:src="@drawable/close"/>
+                    android:src="@drawable/close"
+                    android:contentDescription="@string/desc_clear_search"/>
             </LinearLayout>
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
