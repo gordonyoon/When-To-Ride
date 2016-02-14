@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,9 +86,21 @@ public class EditFavoriteActivity extends FragmentActivity {
 
     private void saveFavorite(String address) {
         GoogleMap.SnapshotReadyCallback callback = bitmap -> {
-            // save current map as image
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            if (width < height) width -= mAddress.getHeight() + getStatusBarHeight();
+
+            final int side = Math.min(width, height);
+            final int x = (width / 2) - (side / 2);
+            final int y = (height / 2) - (side / 2);
+
+            Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, x, y, side, side);
+            bitmap.recycle();
+
+            // convert to byte array
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            croppedBitmap.recycle();
             byte[] byteArray = stream.toByteArray();
 
             // save the favorite into Realm
@@ -101,6 +114,15 @@ public class EditFavoriteActivity extends FragmentActivity {
             mRealm.commitTransaction();
         };
         mMap.snapshot(callback);
+    }
+
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
     @Override
@@ -128,7 +150,6 @@ public class EditFavoriteActivity extends FragmentActivity {
         App.get(this).mapComponent().inject(this);
         ButterKnife.bind(this);
 
-//        mBus = new RxBus();
         mRealm = Realm.getDefaultInstance();
         mController = new MapsController(this);
         setUpMapIfNeeded();
