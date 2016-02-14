@@ -7,10 +7,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,6 +39,7 @@ public class FavoritesActivity extends AppCompatActivity {
     private User mUser;
     Realm mRealm;
 
+    @Bind(R.id.toolbar) Toolbar mToolbar;
     @Bind(R.id.favorites) RecyclerView mRecyclerView;
     @BindString(R.string.uber_client_id) String mClientId;
 
@@ -60,6 +60,8 @@ public class FavoritesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites);
         ButterKnife.bind(this);
+
+        mToolbar.setTitle(getString(R.string.app_name));
 
         mRealm = Realm.getDefaultInstance();
         mRealm.addChangeListener(() -> mRecyclerView.getAdapter().notifyDataSetChanged());
@@ -123,16 +125,6 @@ public class FavoritesActivity extends AppCompatActivity {
             callUber(context, mAddress.getText().toString());
         }
 
-        @OnClick(R.id.delete_favorite)
-        void deleteFavorite() {
-            mRealm.beginTransaction();
-            RealmResults<Favorite> result = mRealm.where(Favorite.class)
-                    .equalTo("address", mAddress.getText().toString())
-                    .findAll();
-            result.remove(0);
-            mRealm.commitTransaction();
-        }
-
         private void callUber(Context context, String address) {
             // open the Uber application
             String uri;
@@ -173,6 +165,16 @@ public class FavoritesActivity extends AppCompatActivity {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(uri));
             startActivity(intent);
+        }
+
+        @OnClick(R.id.delete_favorite)
+        void deleteFavorite() {
+            mRealm.beginTransaction();
+            RealmResults<Favorite> result = mRealm.where(Favorite.class)
+                    .equalTo("address", mAddress.getText().toString())
+                    .findAll();
+            result.remove(0);
+            mRealm.commitTransaction();
         }
     }
 
