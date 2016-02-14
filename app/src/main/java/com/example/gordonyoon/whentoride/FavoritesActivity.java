@@ -11,8 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -20,7 +18,6 @@ import android.widget.TextView;
 
 import com.example.gordonyoon.whentoride.map.EditFavoriteActivity;
 import com.example.gordonyoon.whentoride.models.Favorite;
-import com.example.gordonyoon.whentoride.models.User;
 
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
@@ -36,22 +33,12 @@ public class FavoritesActivity extends AppCompatActivity {
 
     private static final String TAG = "FavoritesActivity";
 
-    public static final String EXTRA_USER = "user";
-
-    private User mUser;
     Realm mRealm;
 
     @Bind(R.id.toolbar) Toolbar mToolbar;
     @Bind(R.id.favorites) RecyclerView mRecyclerView;
     @BindBool(R.bool.orientation_landscape) boolean mIsLandscape;
     @BindString(R.string.uber_client_id) String mClientId;
-
-
-    public static void start(Context context, User user) {
-        Intent intent = new Intent(context, FavoritesActivity.class);
-        intent.putExtra(EXTRA_USER, user);
-        context.startActivity(intent);
-    }
 
     @OnClick(R.id.add_fab)
     void addNewFavorite() {
@@ -75,11 +62,6 @@ public class FavoritesActivity extends AppCompatActivity {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         }
         populateFavorites();
-
-        // for logging in with Uber
-        if (getIntent().getExtras() != null) {
-            mUser = getIntent().getExtras().getParcelable(EXTRA_USER);
-        }
     }
 
     private void populateFavorites() {
@@ -93,28 +75,6 @@ public class FavoritesActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mRealm.close();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_favorites, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

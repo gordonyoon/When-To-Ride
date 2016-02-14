@@ -3,8 +3,6 @@ package com.example.gordonyoon.whentoride.map;
 
 import android.support.annotation.NonNull;
 
-import com.example.gordonyoon.whentoride.login.LoginActivity;
-
 import javax.inject.Singleton;
 
 import dagger.Component;
