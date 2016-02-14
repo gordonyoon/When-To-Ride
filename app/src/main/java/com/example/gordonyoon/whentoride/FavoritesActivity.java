@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -24,6 +25,7 @@ import com.example.gordonyoon.whentoride.models.User;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
 import butterknife.Bind;
+import butterknife.BindBool;
 import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -41,6 +43,7 @@ public class FavoritesActivity extends AppCompatActivity {
 
     @Bind(R.id.toolbar) Toolbar mToolbar;
     @Bind(R.id.favorites) RecyclerView mRecyclerView;
+    @BindBool(R.bool.orientation_landscape) boolean mIsLandscape;
     @BindString(R.string.uber_client_id) String mClientId;
 
 
@@ -66,7 +69,11 @@ public class FavoritesActivity extends AppCompatActivity {
         mRealm = Realm.getDefaultInstance();
         mRealm.addChangeListener(() -> mRecyclerView.getAdapter().notifyDataSetChanged());
 
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        if (mIsLandscape) {
+            mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        } else {
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        }
         populateFavorites();
 
         // for logging in with Uber
