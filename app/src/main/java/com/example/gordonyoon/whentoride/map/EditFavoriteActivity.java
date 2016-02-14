@@ -86,11 +86,14 @@ public class EditFavoriteActivity extends FragmentActivity {
 
     private void saveFavorite(String address) {
         GoogleMap.SnapshotReadyCallback callback = bitmap -> {
-            int width = bitmap.getWidth();
             int height = bitmap.getHeight();
-            if (width < height) width -= mAddress.getHeight() + getStatusBarHeight();
+            int width = bitmap.getWidth();
 
-            final int side = Math.min(width, height);
+            // reduce width to match the bitmap height in horizontal orientation
+            int reducedWidth = width - mAddress.getHeight() - getStatusBarHeight();
+
+            boolean vertical = width < height;
+            final int side = vertical ? reducedWidth : height;
             final int x = (width / 2) - (side / 2);
             final int y = (height / 2) - (side / 2);
 
