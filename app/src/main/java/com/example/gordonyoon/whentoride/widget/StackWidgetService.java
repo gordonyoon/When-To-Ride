@@ -19,14 +19,20 @@ package com.example.gordonyoon.whentoride.widget;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.example.gordonyoon.whentoride.R;
+import com.example.gordonyoon.whentoride.models.Favorite;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class StackWidgetService extends RemoteViewsService {
     @Override
@@ -35,7 +41,6 @@ public class StackWidgetService extends RemoteViewsService {
     }
 
     class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
-        private static final int mCount = 10;
         private List<WidgetItem> mWidgetItems = new ArrayList<>();
         private Context mContext;
         private int mAppWidgetId;
@@ -50,9 +55,9 @@ public class StackWidgetService extends RemoteViewsService {
             // In onCreate() you setup any connections / cursors to your data source. Heavy lifting,
             // for example downloading or creating content etc, should be deferred to onDataSetChanged()
             // or getViewAt(). Taking more than 20 seconds in this call will result in an ANR.
-            for (int i = 0; i < mCount; i++) {
-                mWidgetItems.add(new WidgetItem(i + "!"));
-            }
+//            for (int i = 0; i < mCount; i++) {
+//                mWidgetItems.add(new WidgetItem(i + "!"));
+//            }
 
             // We sleep for 3 seconds here to show how the empty view appears in the interim.
             // The empty view is set in the StackWidgetProvider and should be a sibling of the
@@ -71,6 +76,20 @@ public class StackWidgetService extends RemoteViewsService {
             // from the network, etc., it is ok to do it here, synchronously. The widget will remain
             // in its current state while work is being done here, so you don't need to worry about
             // locking up the widget.
+
+            mWidgetItems.clear();
+
+            final RealmResults<Favorite> favorites = Realm.getDefaultInstance().where(Favorite.class).findAll();
+            for (int i = 0; i < favorites.size(); i++) {
+                Favorite favorite = favorites.get(i);
+                String text = i + "!";
+                String address = favorite.getAddress();
+                String latitude = String.valueOf(favorite.getLatitude());
+                String longitude = String.valueOf(favorite.getLongitude());
+                Bitmap mapPreview = BitmapFactory.decodeByteArray(favorite.getMap(), 0, favorite.getMap().length);
+
+                mWidgetItems.add(new WidgetItem(text, mapPreview, address, latitude, longitude));
+            }
         }
 
         public void onDestroy() {
@@ -80,7 +99,7 @@ public class StackWidgetService extends RemoteViewsService {
         }
 
         public int getCount() {
-            return mCount;
+            return mWidgetItems.size();
         }
 
         public RemoteViews getViewAt(int position) {
