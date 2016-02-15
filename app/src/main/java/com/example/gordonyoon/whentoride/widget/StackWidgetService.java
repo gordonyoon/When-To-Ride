@@ -80,15 +80,13 @@ public class StackWidgetService extends RemoteViewsService {
             mWidgetItems.clear();
 
             final RealmResults<Favorite> favorites = Realm.getDefaultInstance().where(Favorite.class).findAll();
-            for (int i = 0; i < favorites.size(); i++) {
-                Favorite favorite = favorites.get(i);
-                String text = i + "!";
+            for (Favorite favorite : favorites) {
                 String address = favorite.getAddress();
                 String latitude = String.valueOf(favorite.getLatitude());
                 String longitude = String.valueOf(favorite.getLongitude());
                 Bitmap mapPreview = BitmapFactory.decodeByteArray(favorite.getMap(), 0, favorite.getMap().length);
 
-                mWidgetItems.add(new WidgetItem(text, mapPreview, address, latitude, longitude));
+                mWidgetItems.add(new WidgetItem(mapPreview, address, latitude, longitude));
             }
         }
 
@@ -108,7 +106,7 @@ public class StackWidgetService extends RemoteViewsService {
             // We construct a remote views item based on our widget item xml file, and set the
             // text based on the position.
             RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.widget_item);
-            rv.setTextViewText(R.id.widget_item, mWidgetItems.get(position).text);
+            rv.setTextViewText(R.id.widget_item, mWidgetItems.get(position).address);
 
             // Next, we set a fill-intent which will be used to fill-in the pending intent template
             // which is set on the collection view in StackWidgetProvider.

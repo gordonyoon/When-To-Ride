@@ -19,14 +19,12 @@ package com.example.gordonyoon.whentoride.widget;
 import android.graphics.Bitmap;
 
 public class WidgetItem {
-    public String text;
     public Bitmap mapPreview;
     public String address;
     public String latitude;
     public String longitude;
 
-    public WidgetItem(String text, Bitmap mapPreview, String address, String latitude, String longitude) {
-        this.text = text;
+    public WidgetItem(Bitmap mapPreview, String address, String latitude, String longitude) {
         this.mapPreview = mapPreview;
         this.address = address;
         this.latitude = latitude;
