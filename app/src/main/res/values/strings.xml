@@ -16,4 +16,5 @@
     <string name="desc_marker">Indicates the item is a location</string>
     <string name="desc_map_screenshot">A screenshot of the location</string>
     <string name="desc_delete_favorite">Delete the favorite</string>
+    <string name="empty_view_text">This view is empty</string>
 </resources>
