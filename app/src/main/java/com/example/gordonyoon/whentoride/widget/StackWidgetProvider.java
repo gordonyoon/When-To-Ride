@@ -22,14 +22,23 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.example.gordonyoon.whentoride.R;
+import com.example.gordonyoon.whentoride.Utils;
+
+import butterknife.Bind;
 
 public class StackWidgetProvider extends AppWidgetProvider {
+    private static final String TAG = "StackWidgetProvider";
+
     public static final String TOAST_ACTION = "com.example.android.stackwidget.TOAST_ACTION";
     public static final String EXTRA_ITEM = "com.example.android.stackwidget.EXTRA_ITEM";
+    public static final String EXTRA_ADDRESS = "com.example.android.stackwidget.EXTRA_ADDRESS";
+    public static final String EXTRA_LATITUDE = "com.example.android.stackwidget.EXTRA_LATITUDE";
+    public static final String EXTRA_LONGITUDE = "com.example.android.stackwidget.EXTRA_LONGITUDE";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -38,7 +47,18 @@ public class StackWidgetProvider extends AppWidgetProvider {
             int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID);
             int viewIndex = intent.getIntExtra(EXTRA_ITEM, 0);
-            Toast.makeText(context, "Touched view " + viewIndex, Toast.LENGTH_SHORT).show();
+//            Log.d(TAG, "EXTRA_ADDRESS: " + intent.getStringExtra(EXTRA_ADDRESS));
+//            Log.d(TAG, "EXTRA_LATITUDE: " + intent.getStringExtra(EXTRA_LATITUDE));
+//            Log.d(TAG, "EXTRA_LONGITUDE: " + intent.getStringExtra(EXTRA_LONGITUDE));
+//            Toast.makeText(context, "Touched view " + viewIndex, Toast.LENGTH_SHORT).show();
+
+            String latitude = intent.getStringExtra(EXTRA_LATITUDE);
+            String longitude = intent.getStringExtra(EXTRA_LONGITUDE);
+            String address = intent.getStringExtra(EXTRA_ADDRESS);
+            String clientId = context.getString(R.string.uber_client_id);
+            final Intent uberIntent = Utils.getUberIntent(context, clientId, latitude, longitude, address);
+            uberIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(uberIntent);
         }
         super.onReceive(context, intent);
     }

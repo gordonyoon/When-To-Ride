@@ -113,6 +113,11 @@ public class StackWidgetService extends RemoteViewsService {
             // which is set on the collection view in StackWidgetProvider.
             Bundle extras = new Bundle();
             extras.putInt(StackWidgetProvider.EXTRA_ITEM, position);
+
+            WidgetItem item = mWidgetItems.get(position);
+            extras.putString(StackWidgetProvider.EXTRA_ADDRESS, item.address);
+            extras.putString(StackWidgetProvider.EXTRA_LATITUDE, item.latitude);
+            extras.putString(StackWidgetProvider.EXTRA_LONGITUDE, item.longitude);
             Intent fillInIntent = new Intent();
             fillInIntent.putExtras(extras);
             rv.setOnClickFillInIntent(R.id.widget_item, fillInIntent);
