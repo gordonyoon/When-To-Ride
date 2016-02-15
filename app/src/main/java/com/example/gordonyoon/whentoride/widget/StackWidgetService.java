@@ -57,11 +57,11 @@ public class StackWidgetService extends RemoteViewsService {
             // We sleep for 3 seconds here to show how the empty view appears in the interim.
             // The empty view is set in the StackWidgetProvider and should be a sibling of the
             // collection view.
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(3000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
 
         public void onDataSetChanged() {
