@@ -107,6 +107,7 @@ public class StackWidgetService extends RemoteViewsService {
             // text based on the position.
             RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.widget_item);
             rv.setTextViewText(R.id.widget_item, mWidgetItems.get(position).address);
+            rv.setImageViewBitmap(R.id.widget_map, mWidgetItems.get(position).mapPreview);
 
             // Next, we set a fill-intent which will be used to fill-in the pending intent template
             // which is set on the collection view in StackWidgetProvider.
