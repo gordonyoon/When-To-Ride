@@ -89,49 +89,17 @@ public class FavoritesActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Context context = v.getContext().getApplicationContext();
-            callUber(context, mAddress.getText().toString());
-        }
+            String address = mAddress.getText().toString();
 
-        private void callUber(Context context, String address) {
-            // open the Uber application
-            String uri;
-            try {
-                PackageManager pm = context.getPackageManager();
-                pm.getPackageInfo("com.ubercab", PackageManager.GET_ACTIVITIES);
+            Favorite favorite = mRealm
+                    .where(Favorite.class)
+                    .equalTo("address", address)
+                    .findFirst();
+            String latitude = String.valueOf(favorite.getLatitude());
+            String longitude = String.valueOf(favorite.getLongitude());
 
-                Favorite favorite = mRealm
-                        .where(Favorite.class)
-                        .equalTo("address", address)
-                        .findFirst();
-                String latitude = String.valueOf(favorite.getLatitude());
-                String longitude = String.valueOf(favorite.getLongitude());
-
-                // call an Uber and open the application
-                uri = new Uri.Builder()
-                        .scheme("uber")
-                        .authority("")
-                        .appendQueryParameter("client_id", mClientId)
-                        .appendQueryParameter("action", "setPickup")
-                        .appendQueryParameter("pickup", "my_location")
-                        .appendQueryParameter("dropoff[latitude]", latitude)
-                        .appendQueryParameter("dropoff[longitude]", longitude)
-                        .appendQueryParameter("dropoff[formatted_address]", address)
-                        .appendQueryParameter("product_id", "a1111c8c-c720-46c3-8534-2fcdd730040d")
-                        .build()
-                        .toString();
-            } catch (PackageManager.NameNotFoundException e) {
-                // No Uber app! Open mobile website.
-                uri = new Uri.Builder()
-                        .scheme("https")
-                        .authority("m.uber.com")
-                        .path("sign-up")
-                        .appendQueryParameter("client_id", mClientId)
-                        .build()
-                        .toString();
-            }
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(uri));
-            startActivity(intent);
+            // open the Uber app!
+            startActivity(Utils.getUberIntent(context, mClientId, latitude, longitude, address));
         }
 
         @OnClick(R.id.delete_favorite)
