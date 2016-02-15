@@ -15,13 +15,10 @@
 -->
 <appwidget-provider
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:autoAdvanceViewId="@id/stack_view"
     android:initialLayout="@layout/widget_layout"
     android:minHeight="110dip"
     android:minWidth="330dip"
     android:previewImage="@drawable/preview"
     android:updatePeriodMillis="3600000">
 </appwidget-provider>
-    <!--to enable resizing:
-     android:resizeMode="horizontal|vertical" -->
  
