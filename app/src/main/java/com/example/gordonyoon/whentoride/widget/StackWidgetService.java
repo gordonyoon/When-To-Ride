@@ -55,18 +55,6 @@ public class StackWidgetService extends RemoteViewsService {
             // In onCreate() you setup any connections / cursors to your data source. Heavy lifting,
             // for example downloading or creating content etc, should be deferred to onDataSetChanged()
             // or getViewAt(). Taking more than 20 seconds in this call will result in an ANR.
-//            for (int i = 0; i < mCount; i++) {
-//                mWidgetItems.add(new WidgetItem(i + "!"));
-//            }
-
-            // We sleep for 3 seconds here to show how the empty view appears in the interim.
-            // The empty view is set in the StackWidgetProvider and should be a sibling of the
-            // collection view.
-//            try {
-//                Thread.sleep(3000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
         }
 
         public void onDataSetChanged() {
@@ -111,10 +99,8 @@ public class StackWidgetService extends RemoteViewsService {
 
             // Next, we set a fill-intent which will be used to fill-in the pending intent template
             // which is set on the collection view in StackWidgetProvider.
-            Bundle extras = new Bundle();
-            extras.putInt(StackWidgetProvider.EXTRA_ITEM, position);
-
             WidgetItem item = mWidgetItems.get(position);
+            Bundle extras = new Bundle();
             extras.putString(StackWidgetProvider.EXTRA_ADDRESS, item.address);
             extras.putString(StackWidgetProvider.EXTRA_LATITUDE, item.latitude);
             extras.putString(StackWidgetProvider.EXTRA_LONGITUDE, item.longitude);
@@ -122,18 +108,6 @@ public class StackWidgetService extends RemoteViewsService {
             fillInIntent.putExtras(extras);
             rv.setOnClickFillInIntent(R.id.widget_item, fillInIntent);
 
-            // You can do heaving lifting in here, synchronously. For example, if you need to
-            // process an image, fetch something from the network, etc., it is ok to do it here,
-            // synchronously. A loading view will show up in lieu of the actual contents in the
-            // interim.
-            try {
-                System.out.println("Loading view " + position);
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            // Return the remote views object.
             return rv;
         }
 

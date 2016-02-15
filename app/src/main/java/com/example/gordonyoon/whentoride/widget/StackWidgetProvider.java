@@ -22,20 +22,15 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import com.example.gordonyoon.whentoride.R;
 import com.example.gordonyoon.whentoride.Utils;
 
-import butterknife.Bind;
-
 public class StackWidgetProvider extends AppWidgetProvider {
     private static final String TAG = "StackWidgetProvider";
 
-    public static final String TOAST_ACTION = "com.example.android.stackwidget.TOAST_ACTION";
-    public static final String EXTRA_ITEM = "com.example.android.stackwidget.EXTRA_ITEM";
+    public static final String UBER_ACTION = "com.example.android.stackwidget.UBER_ACTION";
     public static final String EXTRA_ADDRESS = "com.example.android.stackwidget.EXTRA_ADDRESS";
     public static final String EXTRA_LATITUDE = "com.example.android.stackwidget.EXTRA_LATITUDE";
     public static final String EXTRA_LONGITUDE = "com.example.android.stackwidget.EXTRA_LONGITUDE";
@@ -43,14 +38,9 @@ public class StackWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-        if (intent.getAction().equals(TOAST_ACTION)) {
+        if (intent.getAction().equals(UBER_ACTION)) {
             int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID);
-            int viewIndex = intent.getIntExtra(EXTRA_ITEM, 0);
-//            Log.d(TAG, "EXTRA_ADDRESS: " + intent.getStringExtra(EXTRA_ADDRESS));
-//            Log.d(TAG, "EXTRA_LATITUDE: " + intent.getStringExtra(EXTRA_LATITUDE));
-//            Log.d(TAG, "EXTRA_LONGITUDE: " + intent.getStringExtra(EXTRA_LONGITUDE));
-//            Toast.makeText(context, "Touched view " + viewIndex, Toast.LENGTH_SHORT).show();
 
             String latitude = intent.getStringExtra(EXTRA_LATITUDE);
             String longitude = intent.getStringExtra(EXTRA_LONGITUDE);
@@ -66,17 +56,17 @@ public class StackWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // update each of the widgets with the remote adapter
-        for (int i = 0; i < appWidgetIds.length; ++i) {
+        for (int appWidgetId : appWidgetIds) {
 
             // Here we setup the intent which points to the StackViewService which will
             // provide the views for this collection.
             Intent intent = new Intent(context, StackWidgetService.class);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
             // When intents are compared, the extras are ignored, so we need to embed the extras
             // into the data so that the extras will not be ignored.
             intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
             RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-            rv.setRemoteAdapter(appWidgetIds[i], R.id.stack_view, intent);
+            rv.setRemoteAdapter(R.id.stack_view, intent);
 
             // The empty view is displayed when the collection has no items. It should be a sibling
             // of the collection view.
@@ -86,15 +76,15 @@ public class StackWidgetProvider extends AppWidgetProvider {
             // cannot setup their own pending intents, instead, the collection as a whole can
             // setup a pending intent template, and the individual items can set a fillInIntent
             // to create unique before on an item to item basis.
-            Intent toastIntent = new Intent(context, StackWidgetProvider.class);
-            toastIntent.setAction(StackWidgetProvider.TOAST_ACTION);
-            toastIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetIds[i]);
+            Intent uberIntent = new Intent(context, StackWidgetProvider.class);
+            uberIntent.setAction(StackWidgetProvider.UBER_ACTION);
+            uberIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
             intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
-            PendingIntent toastPendingIntent = PendingIntent.getBroadcast(context, 0, toastIntent,
+            PendingIntent toastPendingIntent = PendingIntent.getBroadcast(context, 0, uberIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
             rv.setPendingIntentTemplate(R.id.stack_view, toastPendingIntent);
 
-            appWidgetManager.updateAppWidget(appWidgetIds[i], rv);
+            appWidgetManager.updateAppWidget(appWidgetId, rv);
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds);
     }
