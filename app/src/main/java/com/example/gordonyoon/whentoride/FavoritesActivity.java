@@ -1,11 +1,8 @@
 package com.example.gordonyoon.whentoride;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.gordonyoon.whentoride.map.EditFavoriteActivity;
 import com.example.gordonyoon.whentoride.models.Favorite;
+import com.example.gordonyoon.whentoride.widget.StackWidgetProvider;
 
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
@@ -54,7 +52,10 @@ public class FavoritesActivity extends AppCompatActivity {
         mToolbar.setTitle(getString(R.string.app_name));
 
         mRealm = Realm.getDefaultInstance();
-        mRealm.addChangeListener(() -> mRecyclerView.getAdapter().notifyDataSetChanged());
+        mRealm.addChangeListener(() -> {
+            mRecyclerView.getAdapter().notifyDataSetChanged();
+            StackWidgetProvider.updateAllWidgets(FavoritesActivity.this);
+        });
 
         if (mIsLandscape) {
             mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));

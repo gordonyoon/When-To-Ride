@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 
-import butterknife.BindString;
-
 public class Utils {
 
     public static Intent getUberIntent(Context context, String clientId, String latitude, String longitude, String address) {
@@ -44,4 +42,5 @@ public class Utils {
         intent.setData(Uri.parse(uri));
         return intent;
     }
+
 }

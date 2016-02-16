@@ -19,6 +19,7 @@ package com.example.gordonyoon.whentoride.widget;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -34,6 +35,12 @@ public class StackWidgetProvider extends AppWidgetProvider {
     public static final String EXTRA_ADDRESS = "com.example.android.stackwidget.EXTRA_ADDRESS";
     public static final String EXTRA_LATITUDE = "com.example.android.stackwidget.EXTRA_LATITUDE";
     public static final String EXTRA_LONGITUDE = "com.example.android.stackwidget.EXTRA_LONGITUDE";
+
+    public static void updateAllWidgets(Context context) {
+        AppWidgetManager manager = AppWidgetManager.getInstance(context);
+        ComponentName name = new ComponentName(context, StackWidgetProvider.class);
+        manager.notifyAppWidgetViewDataChanged(manager.getAppWidgetIds(name), R.id.stack_view);
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
