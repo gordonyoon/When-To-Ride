@@ -35,8 +35,7 @@ public class FavoritesActivity extends AppCompatActivity {
 
     @Bind(R.id.toolbar) Toolbar mToolbar;
     @Bind(R.id.favorites) RecyclerView mRecyclerView;
-    @BindBool(R.bool.orientation_landscape) boolean mIsLandscape;
-    @BindString(R.string.uber_client_id) String mClientId;
+    private String mClientId;
 
     @OnClick(R.id.add_fab)
     void addNewFavorite() {
@@ -48,6 +47,7 @@ public class FavoritesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites);
         ButterKnife.bind(this);
+        mClientId = getResources().getString(R.string.uber_client_id);
 
         mToolbar.setTitle(getString(R.string.app_name));
 
@@ -57,7 +57,8 @@ public class FavoritesActivity extends AppCompatActivity {
             StackWidgetProvider.updateAllWidgets(FavoritesActivity.this);
         });
 
-        if (mIsLandscape) {
+        boolean isLandscape = getResources().getBoolean(R.bool.orientation_landscape);
+        if (isLandscape) {
             mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         } else {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
